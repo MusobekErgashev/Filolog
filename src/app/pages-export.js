@@ -34,4 +34,18 @@ export const Pages = [
         path: "/liderboard",
         id: 5,
     },
+    {
+        pageName: "AI Yordamchi",
+        iconActive: "/assets/aiTutorActive.png",
+        icon: "/assets/aiTutor.png",
+        path: "/aiTutor",
+        id: 7,
+    },
+    {
+        pageName: "Premium obuna",
+        iconActive: "/assets/subscriptionActive.png",
+        icon: "/assets/subscription.png",
+        path: "/subscription",
+        id: 6,
+    },
 ]
