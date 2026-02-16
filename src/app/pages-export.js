@@ -28,11 +28,18 @@ export const Pages = [
         id: 4,
     },
     {
+        pageName: "Uyga Vazifa",
+        iconActive: "/assets/homeworkActive.png",
+        icon: "/assets/homework.png",
+        path: "/homework",
+        id: 5,
+    },
+    {
         pageName: "Peshqadamlar",
         iconActive: "/assets/liderboardActive.png",
         icon: "/assets/liderboard.png",
         path: "/liderboard",
-        id: 5,
+        id: 6,
     },
     {
         pageName: "AI Yordamchi",
@@ -46,6 +53,6 @@ export const Pages = [
         iconActive: "/assets/subscriptionActive.png",
         icon: "/assets/subscription.png",
         path: "/subscription",
-        id: 6,
+        id: 8,
     },
 ]
