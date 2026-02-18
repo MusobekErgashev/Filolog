@@ -20,7 +20,7 @@ export default function HeroSlider() {
     >
       {/* Slide 1 */}
       <SwiperSlide>
-        <div className="bg-linear-to-r from-indigo-600 to-purple-600 text-white p-10 rounded-2xl flex flex-col items-center gap-4">
+        <div className="bg-linear-to-r from-indigo-600 to-purple-600 w-full text-white p-10 rounded-2xl flex flex-col items-center gap-4">
           <h2 className="text-3xl font-bold">
             {`Filolog Onlayn Ta'lim Platformasi`}
           </h2>
@@ -37,7 +37,7 @@ export default function HeroSlider() {
 
       {/* Slide 2 */}
       <SwiperSlide>
-        <div className="bg-linear-to-r from-blue-600 to-cyan-500 text-white p-10 rounded-2xl flex flex-col gap-4 items-center">
+        <div className="w-full bg-linear-to-r from-blue-600 to-cyan-500 text-white p-10 rounded-2xl flex flex-col gap-4 items-center">
           <h2 className="text-3xl font-bold">
             Test va Reyting Tizimi
           </h2>
@@ -54,7 +54,7 @@ export default function HeroSlider() {
 
       {/* Slide 3 */}
       <SwiperSlide>
-        <div className="bg-linear-to-r from-purple-600 to-pink-500 text-white p-10 rounded-2xl flex flex-col gap-4 items-center">
+        <div className="w-full bg-linear-to-r from-purple-600 to-pink-500 text-white p-10 rounded-2xl flex flex-col gap-4 items-center">
           <h2 className="text-3xl font-bold">
             Raqamli Kutubxona
           </h2>
@@ -71,7 +71,7 @@ export default function HeroSlider() {
 
       {/* Slide 4 */}
       <SwiperSlide>
-        <div className="bg-linear-to-r from-green-600 to-emerald-500 text-white p-10 rounded-2xl flex flex-col gap-4 items-center">
+        <div className="w-full bg-linear-to-r from-green-600 to-emerald-500 text-white p-10 rounded-2xl flex flex-col gap-4 items-center">
           <h2 className="text-3xl font-bold">
             Premium Obuna
           </h2>

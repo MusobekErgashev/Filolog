@@ -9,6 +9,7 @@
 
 body {
   background: var(--background);
+  width: 100%;
   color: var(--text);
   /* font-family: "Montserrat", sans-serif; */
   font-family: "Poppins", sans-serif;
