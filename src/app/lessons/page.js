@@ -32,7 +32,7 @@ const page = () => {
   return (
     <div className='flex flex-col gap-5'>
       <div>
-        <h1 className="text-[30px] lg:text-[34px] font-semibold leading-9 lg:leading-11">Barcha Darsliklar {data.length} ta</h1>
+        <h1 className="text-[26px] sm:text-[30px] lg:text-[34px] font-semibold leading-7 sm:leading-9 lg:leading-11">Barcha Darsliklar {data.length} ta</h1>
         <p className="text-[14px] lg:text-[18px] text-[#8144FE]">Ona tili va Adabiyot fanidan professional tarzda tuzilgan videodarsliklar</p>
       </div>
 
@@ -64,12 +64,12 @@ const page = () => {
           data.map((item) => {
             return (
               <div key={item.id} className='flex cursor-pointer transition-all hover:bg-gray-100 justify-between px-2 py-2 bg-white rounded-md items-center shadow-xl shadow-blue-100'>
-                <div className='flex gap-3 items-center'>
+                <div className='flex gap-2 sm:gap-3 items-center'>
                   <h1 className='bg-[#8144FE] p-1 rounded-md text-white w-10 h-10 text-[14px] lg:text-[16px] lg:w-11 lg:h-11 flex justify-center items-center font-medium'>#{item.id}</h1>
                   <p className='text-[#8144FE] font-medium text-[14px] lg:text-[16px]'>{item.title}</p>
                 </div>
 
-                <div className='flex gap-4'>
+                <div className='flex gap-2 sm:gap-4'>
                   <h3 className='text-[#00AF5F] text-[14px] lg:text-[16px]'>{item.isEnded ? "Tugatilgan" : ""}</h3>
                   <h2 className='text-[#8144FE] text-[14px] lg:text-[16px]'>23:09</h2>
                 </div>

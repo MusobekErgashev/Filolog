@@ -22,11 +22,11 @@ const page = () => {
   return (
     <div className='flex flex-col gap-5'>
       <div>
-        <h1 className="text-[30px] lg:text-[34px] font-semibold leading-9 lg:leading-11">{"Testlar bo'limi"}</h1>
+        <h1 className="text-[26px] sm:text-[30px] lg:text-[34px] font-semibold leading-7 sm:leading-9 lg:leading-11">{"Testlar bo'limi"}</h1>
         <p className="text-[14px] lg:text-[18px] text-[#8144FE]">{"Test yechib bilimingizni oshiring va bonus ballarni qo'lga kiriting"}</p>
       </div>
 
-      <div className='flex gap-2 w-full'>
+      <div className='flex flex-col sm:flex-row gap-2 w-full'>
         {
           data.map((item) => {
             return (
@@ -47,7 +47,7 @@ const page = () => {
       <div className='flex flex-col gap-3 w-full'>
         <div className='bg-white flex flex-col cursor-pointer hover:bg-gray-50 border-2 border-white gap-2 p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200'>
           <div className='flex gap-2 items-center'>
-            <h1 className='font-semibold text-[18px] lg:text-[22px] leading-0'>Victorian Poetry Analysis</h1>
+            <h1 className='font-semibold text-[18px] lg:text-[22px] leading-5.5'>Victorian Poetry Analysis</h1>
             <span className='text-[10px] lg:text-[14px] font-normal px-1 h-max bg-green-400'>Tugatilgan</span>
           </div>
 

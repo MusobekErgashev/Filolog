@@ -50,7 +50,7 @@ const page = () => {
   return (
     <div className='flex flex-col gap-5'>
       <div>
-        <h1 className="text-[30px] lg:text-[34px] font-semibold leading-9 lg:leading-11">Raqamli Kutubxona</h1>
+        <h1 className="text-[26px] sm:text-[30px] lg:text-[34px] font-semibold leading-7 sm:leading-9 lg:leading-11">Raqamli Kutubxona</h1>
         <p className="text-[14px] lg:text-[18px] text-[#8144FE]">{"O'zingizga kerakli PDF kitobni tanlang va yuklab oling"}</p>
       </div>
 
@@ -67,13 +67,13 @@ const page = () => {
         </div>
       </div>
 
-      <div className='grid grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5'>
+      <div className='grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5'>
         {
           data.map((item) => {
             return (
-              <div key={item.id} className='flex justify-between h-110 lg:h-125 flex-col transition-all hover:shadow-2xl bg-white rounded-2xl shadow-xl shadow-blue-100'>
+              <div key={item.id} className='flex justify-between h-90 sm:h-110 lg:h-125 flex-col transition-all hover:shadow-2xl bg-white rounded-2xl shadow-xl shadow-blue-100'>
                 <div className='overflow-hidden rounded-t-2xl'>
-                  <Image src={'/assets/book.webp'} className='w-full transition-all hover:scale-105 h-60 lg:h-75 object-cover' alt='book' width={100} height={350} />
+                  <Image src={'/assets/book.webp'} className='w-full transition-all hover:scale-105 h-40 sm:h-60 lg:h-75 object-cover' alt='book' width={100} height={350} />
                 </div>
 
                 <div className='p-3 flex flex-col gap-1'>
@@ -88,8 +88,8 @@ const page = () => {
                   </div>
 
                   <div className='flex flex-col'>
-                    <button className='transition-all text-[12px] lg:text-[16px] text-orange-500 border-2 border-orange-500 rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Saralanganlarga</button>
-                    <button className='bg-[#8144FE] text-[12px] lg:text-[16px] transition-all hover:bg-[#9c5fff] text-white rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Yuklash</button>
+                    <button className='transition-all text-[10px] sm:text-[12px] lg:text-[16px] text-orange-500 border-2 border-orange-500 rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Saralanganlarga</button>
+                    <button className='bg-[#8144FE] text-[10px] sm:text-[12px] lg:text-[16px] transition-all hover:bg-[#9c5fff] text-white rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Yuklash</button>
                   </div>
                 </div>
               </div>
