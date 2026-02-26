@@ -9,9 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.33",
+    "@google/genai": "^1.42.0",
+    "@google/generative-ai": "^0.24.1",
+    "ai": "^6.0.99",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
     "swiper": "^12.1.1"
   },
   "devDependencies": {
