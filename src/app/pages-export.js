@@ -48,11 +48,4 @@ export const Pages = [
         path: "/aiTutor",
         id: 7,
     },
-    {
-        pageName: "Premium obuna",
-        iconActive: "/assets/subscriptionActive.png",
-        icon: "/assets/subscription.png",
-        path: "/subscription",
-        id: 8,
-    },
 ]
