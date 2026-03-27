@@ -53,7 +53,7 @@ const Page = () => {
               <p className="text-indigo-600 font-medium mb-3">{user.username}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-[#45556C] text-sm">
                 <span className="flex items-center gap-1.5 bg-gray-100 px-3 py-1 rounded-full">
-                  <Calendar size={14} /> {user.joinDate}da qo&apos;shilgan
+                  <Calendar size={14} /> {user.joinDate}{`da qo'shilgan`}
                 </span>
               </div>
             </div>
@@ -104,8 +104,8 @@ const Page = () => {
               <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-400 mb-4">
                 <Calendar size={40} />
               </div>
-              <h3 className="text-xl font-bold text-[#0F172B] mb-2">Hozircha faollik yo&apos;q</h3>
-              <p className="text-[#45556C] max-w-xs mx-auto">Siz kitoblarni yuklab olishni boshlashingiz bilan bu erda faolliklar ko&apos;rinadi.</p>
+              <h3 className="text-xl font-bold text-[#0F172B] mb-2">{`Hozircha faollik yo'q`}</h3>
+              <p className="text-[#45556C] max-w-xs mx-auto">{`Siz kitoblarni yuklab olishni boshlashingiz bilan bu erda faolliklar ko'rinadi.`}</p>
               <button className="mt-6 text-[#8144FE] font-bold hover:underline">Kutubxonaga borish</button>
             </div>
           </div>

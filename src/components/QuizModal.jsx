@@ -47,7 +47,7 @@ const QuizModal = ({ quiz, onClose }) => {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 flex flex-col items-center gap-6 animate-[fadeIn_0.3s_ease-out]">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#8144FE] to-[#5B2CC7] flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-linear-to-br from-[#8144FE] to-[#5B2CC7] flex items-center justify-center">
             <span className="text-3xl text-white font-bold">{percentage}%</span>
           </div>
 
@@ -101,7 +101,7 @@ const QuizModal = ({ quiz, onClose }) => {
 
           <button
             onClick={onClose}
-            className="w-full py-3 bg-gradient-to-r from-[#8144FE] to-[#5B2CC7] text-white font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer active:scale-[0.98]"
+            className="w-full py-3 bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer active:scale-[0.98]"
           >
             Yopish
           </button>
@@ -130,7 +130,7 @@ const QuizModal = ({ quiz, onClose }) => {
         <div className="flex items-center gap-3">
           <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#8144FE] to-[#5B2CC7] rounded-full transition-all duration-300"
+              className="h-full bg-linear-to-r from-[#8144FE] to-[#5B2CC7] rounded-full transition-all duration-300"
               style={{
                 width: `${((currentQuestion + 1) / quiz.questions.length) * 100}%`,
               }}
@@ -202,7 +202,7 @@ const QuizModal = ({ quiz, onClose }) => {
               className={`flex-1 py-3 font-semibold rounded-xl transition-all cursor-pointer active:scale-[0.98]
                 ${selectedAnswers.includes(null)
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#8144FE] to-[#5B2CC7] text-white hover:opacity-90"
+                  : "bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white hover:opacity-90"
                 }`}
             >
               Tugatish
@@ -214,7 +214,7 @@ const QuizModal = ({ quiz, onClose }) => {
               className={`flex-1 py-3 font-semibold rounded-xl transition-all cursor-pointer active:scale-[0.98]
                 ${selectedAnswers[currentQuestion] === null
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#8144FE] to-[#5B2CC7] text-white hover:opacity-90"
+                  : "bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white hover:opacity-90"
                 }`}
             >
               Keyingi
