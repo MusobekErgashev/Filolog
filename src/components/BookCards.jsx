@@ -53,7 +53,7 @@ const BookCards = ({ value }) => {
     const filteredData = data.filter((item) => item.name.toLowerCase().includes(value.toLowerCase()))
 
     return (
-        <div className='grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 relative gap-3 lg:gap-5'>
+        <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 relative gap-3 lg:gap-5'>
             {
                 filteredData.length === 0 ? <p className='text-xl absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-1/2 font-medium'>Kitob topilmadi</p> : filteredData.map((item) => {
                     return (
@@ -74,9 +74,9 @@ const BookCards = ({ value }) => {
                                 </div>
 
                                 <div className='flex flex-col'>
-                                    <div className='flex w-full gap-2'>
-                                        <button className='transition-all text-[10px] w-full sm:text-[12px] lg:text-[16px] text-orange-500 hover:bg-orange-50 border-2 border-orange-500 rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Saralanganlarga</button>
-                                        <button className='transition-all text-[10px] sm:text-[12px] lg:text-[16px] text-white bg-red-600 rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'><Trash /></button>
+                                    <div className='flex w-full h-max gap-2'>
+                                        <button className='transition-all text-[10px] h-max w-full sm:text-[12px] lg:text-[16px] text-orange-500 hover:bg-orange-50 border-2 border-orange-500 rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Saralanganlarga</button>
+                                        <button className='transition-all text-[10px] sm:text-[12px] lg:text-[16px] text-white bg-red-600 rounded-md cursor-pointer font-medium py-1 lg:py-2 px-2 lg:px-3 mt-2'><Trash /></button>
                                     </div>
                                     <button className='bg-[#8144FE] text-[10px] sm:text-[12px] lg:text-[16px] transition-all hover:bg-[#9c5fff] text-white rounded-md cursor-pointer font-medium py-1.5 lg:py-2 px-2 lg:px-3 mt-2'>Yuklash</button>
                                 </div>

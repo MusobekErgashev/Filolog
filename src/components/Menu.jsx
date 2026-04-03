@@ -1,75 +1,95 @@
 'use client'
 
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React from 'react'
 import { Pages } from '@/app/pages-export'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
+import useMenuStore from '@/store/menuStore'
+import { X } from 'lucide-react'
 
 const Menu = () => {
     const pathname = usePathname()
+    const { isOpen, closeMenu } = useMenuStore()
 
     return (
-        <div className='bg-white w-full gap-1 justify-between sm:w-max md:w-60 lg:w-80 flex sm:flex-col transition-all sm:justify-between py-2 sm:py-5 border-r border-[#DFE5ED]'>
-            <div className='flex justify-between w-full sm:flex-col px-3 lg:px-5'>
-                {
-                    Pages.map((item) => {
-                        const isActive = pathname === item.path
+        <>
+            {/* Backdrop */}
+            <div 
+                className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                onClick={closeMenu}
+            />
 
-                        return (
-                            <Link
-                                className={`p-2 sm:py-3 sm:px-4 rounded-xl h-max text-[14px] lg:text-[16px] font-medium flex items-center gap-2.5 transition-all ${isActive
-                                    ? 'bg-[#8144FE] text-white shadow-lg shadow-blue-100'
-                                    : 'text-[#45556C] hover:bg-gray-100'
-                                    }`}
-                                href={item.path}
-                                key={item.id}>
-                                <Image
-                                    src={isActive ? item.iconActive : item.icon}
-                                    alt={item.pageName}
-                                    width={0}
-                                    height={0}
-                                    className='min-w-5 min-h-5 lg:w-6 lg:h-6'
-                                />
+            {/* Sidebar */}
+            <div className={`fixed top-0 left-0 h-screen bg-white z-50 w-72 md:w-80 flex flex-col transition-transform duration-300 ease-in-out border-r border-[#DFE5ED] shadow-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                
+                {/* Header inside Sidebar */}
+                <div className='flex items-center justify-between p-6 border-b border-[#DFE5ED] bg-slate-50/50'>
+                    <Link href={'/'} onClick={closeMenu}>
+                        <Image src={'/assets/logo.png'} alt='logo' width={120} height={40} className='w-28 sm:w-32' />
+                    </Link>
+                    <button 
+                        onClick={closeMenu}
+                        className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
+                    >
+                        <X size={24} />
+                    </button>
+                </div>
 
-                                <p className='hidden md:block'>{item.pageName}</p>
-                            </Link>
+                {/* Menu Items */}
+                <div className='flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar'>
+                    {
+                        Pages.map((item) => {
+                            const isActive = pathname === item.path
 
-                        )
-                    })
-                }
+                            return (
+                                <Link
+                                    onClick={closeMenu}
+                                    className={`py-3 px-4 rounded-xl text-[15px] font-medium flex items-center gap-3 transition-all ${isActive
+                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
+                                        : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                    href={item.path}
+                                    key={item.id}>
+                                    <div className={`p-2 rounded-lg ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>
+                                        <Image
+                                            src={isActive ? item.iconActive : item.icon}
+                                            alt={item.pageName}
+                                            width={20}
+                                            height={20}
+                                            className='w-5 h-5'
+                                        />
+                                    </div>
 
-                <Link href={'/profile'} className={`sm:hidden md:px-4 md:w-full md:py-3 items-center flex rounded-xl transition-all gap-3 lg:gap-4 ${pathname === "/profile" ? 'bg-[#8144FE] shadow-lg shadow-blue-100' : 'md:bg-[#F3F7FA] md:hover:bg-gray-200'}`}>
-                    <div className={`p-2 sm:py-3 sm:px-4 sm:w-11 lg:w-12 sm:h-11 lg:h-12 flex justify-center items-center rounded-full ${pathname === "/profile" ? '' : 'bg-white'}`}>
-                        {
-                            pathname === "/profile" ? (
-                                <Image src={'/assets/profileActive.png'} alt='profile' width={0} height={0} className='min-w-5 min-h-5 md:min-w-8 md:min-h-8' />
-                            ) : (<Image src={'/assets/profile.png'} alt='profile' width={0} height={0} className='min-w-5 min-h-5' />)
-                        }
-                    </div>
-                    <div className={`hidden md:flex flex-col gap-3.5 lg:gap-4.5 ${pathname === "/profile" ? 'text-white' : ''}`}>
-                        <h3 className='text-[14px] lg:text-[16px] font-medium  leading-0'>Musobek</h3>
-                        <p className='font-light text-[10px] lg:text-[14px] leading-0'>Yangi</p>
-                    </div>
-                </Link>
+                                    <span>{item.pageName}</span>
+                                </Link>
+                            )
+                        })
+                    }
+                </div>
+
+                {/* Profile Section inside Sidebar */}
+                <div className='p-4 border-t border-[#DFE5ED] bg-slate-50'>
+                    <Link 
+                        href={'/profile'} 
+                        onClick={closeMenu}
+                        className={`p-3 w-full flex items-center rounded-xl transition-all gap-4 ${pathname === "/profile" ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-200 bg-white border border-slate-100'}`}
+                    >
+                        <div className={`w-11 h-11 flex justify-center items-center rounded-full overflow-hidden border-2 ${pathname === "/profile" ? 'border-white/30 bg-white/10' : 'border-slate-100 bg-slate-50'}`}>
+                             {
+                                pathname === "/profile" ? (
+                                    <Image src={'/assets/profileActive.png'} alt='profile' width={28} height={28} className='w-7 h-7' />
+                                ) : (<Image src={'/assets/profile.png'} alt='profile' width={20} height={20} className='w-5 h-5' />)
+                            }
+                        </div>
+                        <div className='flex flex-col'>
+                            <h3 className='text-[15px] font-semibold leading-tight'>Musobek</h3>
+                            <p className={`text-[12px] ${pathname === "/profile" ? 'text-indigo-100' : 'text-slate-500'}`}>Talaba</p>
+                        </div>
+                    </Link>
+                </div>
             </div>
-
-            <div className='sm:pt-5 hidden sm:border-t sm:flex justify-center md:justify-start border-[#DFE5ED] pr-3 sm:px-3 lg:px-5'>
-                <Link href={'/profile'} className={`md:px-4 md:w-full md:py-3 items-center flex rounded-xl transition-all gap-3 lg:gap-4 ${pathname === "/profile" ? 'bg-[#8144FE] shadow-lg shadow-blue-100' : 'md:bg-[#F3F7FA] md:hover:bg-gray-200'}`}>
-                    <div className={`p-2 sm:py-3 sm:px-4 sm:w-11 lg:w-12 sm:h-11 lg:h-12 flex justify-center items-center rounded-full ${pathname === "/profile" ? '' : 'bg-white'}`}>
-                        {
-                            pathname === "/profile" ? (
-                                <Image src={'/assets/profileActive.png'} alt='profile' width={0} height={0} className='min-w-5 min-h-5 md:min-w-8 md:min-h-8' />
-                            ) : (<Image src={'/assets/profile.png'} alt='profile' width={0} height={0} className='min-w-5 min-h-5' />)
-                        }
-                    </div>
-                    <div className={`hidden md:flex flex-col gap-3.5 lg:gap-4.5 ${pathname === "/profile" ? 'text-white' : ''}`}>
-                        <h3 className='text-[14px] lg:text-[16px] font-medium  leading-0'>Musobek</h3>
-                        <p className='font-light text-[10px] lg:text-[14px] leading-0'>Yangi</p>
-                    </div>
-                </Link>
-            </div>
-        </div >
+        </>
     )
 }
 

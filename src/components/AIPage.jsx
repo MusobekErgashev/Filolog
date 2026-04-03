@@ -64,7 +64,7 @@ export default function AIPage() {
 
         <button
           onClick={sendMessage}
-          className="bg-indigo-600 text-white px-4 rounded"
+          className="bg-[#006EDD] text-white px-4 rounded"
           disabled={loading}
         >
           Yuborish

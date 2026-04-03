@@ -73,44 +73,21 @@ const Page = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 mt-8 flex flex-col lg:flex-row gap-8">
-        <div className="lg:w-1/3 flex flex-col gap-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
-            {user.stats.map((stat, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg shadow-blue-100/50 p-5 flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                    {stat.icon}
-                  </div>
-                  <span className="text-[#45556C] font-medium">{stat.label}</span>
+      <div className="w-full flex flex-col mt-8 px-4 container mx-auto gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {user.stats.map((stat, index) => (
+            <div key={index} className="bg-white rounded-2xl shadow-lg shadow-blue-100/50 p-5 flex items-center justify-between border border-transparent hover:border-indigo-100 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
+                  {stat.icon}
                 </div>
-                <span className="text-2xl font-bold text-[#0F172B]">{stat.count}</span>
+                <span className="text-[#45556C] font-medium">{stat.label}</span>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="lg:w-2/3 flex flex-col gap-1">
-          <div className="flex bg-white p-1.5 rounded-t-2xl shadow-lg shadow-blue-100/50">
-            <span
-              className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2`}
-            >
-              <Calendar size={20} /> Faollik
-            </span>
-          </div>
-
-          <div className="min-h-[400px]">
-            <div className="bg-white rounded-b-3xl shadow-xl shadow-blue-100/50 p-8 flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-400 mb-4">
-                <Calendar size={40} />
-              </div>
-              <h3 className="text-xl font-bold text-[#0F172B] mb-2">{`Hozircha faollik yo'q`}</h3>
-              <p className="text-[#45556C] max-w-xs mx-auto">{`Siz kitoblarni yuklab olishni boshlashingiz bilan bu erda faolliklar ko'rinadi.`}</p>
-              <button className="mt-6 text-[#8144FE] font-bold hover:underline">Kutubxonaga borish</button>
+              <span className="text-2xl font-bold text-[#0F172B]">{stat.count}</span>
             </div>
-          </div>
+          ))}
         </div>
-      </main>
+      </div>
 
       {isModalOpen ? <UpdateProfileModal setIsModalOpen={setIsModalOpen} /> : ""}
     </div>

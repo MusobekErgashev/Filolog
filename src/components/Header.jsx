@@ -1,15 +1,26 @@
 'use client'
 
+import React from 'react'
+import { MenuIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import useMenuStore from '@/store/menuStore'
 
 const Header = () => {
+    const { toggleMenu } = useMenuStore()
+
     return (
         <div className='w-full px-5 py-2 sm:py-3 flex justify-between items-center bg-white border-b border-[#DFE5ED]'>
-            <Link href={'/'}>
-                <Image src={'/assets/logo.png'} alt='logo' width={140} height={50} className='min-w-25 w-25 sm:min-w-28 md:min-w-32 md:w-32 lg:w-35' />
-            </Link>
+            <div className='flex items-center gap-4'>
+                <MenuIcon 
+                    className='w-7 h-7 text-indigo-600 cursor-pointer hover:bg-slate-50 rounded-md transition-colors' 
+                    onClick={toggleMenu}
+                />
+
+                <Link href={'/'}>
+                    <Image src={'/assets/logo.png'} alt='logo' width={140} height={50} className='min-w-25 w-25 sm:min-w-28 md:min-w-32 md:w-32 lg:w-35' />
+                </Link>
+            </div>
 
             <div className='flex gap-2.5 sm:gap-5 items-center  rounded px-3 py-1'>
                 <Link href={'/liderboard'} className='flex gap-2 items-center'>
