@@ -21,16 +21,16 @@ const Menu = () => {
             />
 
             {/* Sidebar */}
-            <div className={`fixed top-0 left-0 h-screen bg-white z-50 w-72 md:w-80 flex flex-col transition-transform duration-300 ease-in-out border-r border-[#DFE5ED] shadow-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className={`fixed top-0 left-0 h-full max-h-screen bg-white z-50 w-72 md:w-80 flex flex-col transition-transform duration-300 ease-in-out border-r border-[#DFE5ED] shadow-2xl ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 
                 {/* Header inside Sidebar */}
                 <div className='flex items-center justify-between p-6 border-b border-[#DFE5ED] bg-slate-50/50'>
-                    <Link href={'/'} onClick={closeMenu}>
+                    <Link href={'/dashboard'} onClick={closeMenu}>
                         <Image src={'/assets/logo.png'} alt='logo' width={120} height={40} className='w-28 sm:w-32' />
                     </Link>
                     <button 
                         onClick={closeMenu}
-                        className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-500"
+                        className="p-2 cursor-pointer hover:bg-slate-200 rounded-full transition-colors text-slate-500"
                     >
                         <X size={24} />
                     </button>

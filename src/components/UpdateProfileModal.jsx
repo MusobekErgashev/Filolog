@@ -8,13 +8,8 @@ const UpdateProfileModal = ({ setIsModalOpen }) => {
     const [updatedEmail, setUpdatedEmail] = useState("")
     const [updatedName, setUpdatedName] = useState("")
     const [updatedSurName, setUpdatedSurName] = useState("")
-    const [updatedNumber, setUpdatedNumber] = useState("")
     const [avatarPreview, setAvatarPreview] = useState("/assets/book.webp")
     const fileInputRef = useRef(null)
-    
-    if (updatedNumber.length > 9) {
-        setUpdatedNumber(updatedNumber.slice(0, 9))
-    }
 
     const handleImageChange = (e) => {
         const file = e.target.files[0]
@@ -121,22 +116,6 @@ const UpdateProfileModal = ({ setIsModalOpen }) => {
                             </div>
                         </div>
 
-                        <div className='group'>
-                            <div className='h-14 flex items-center px-4 bg-gray-50/50 rounded-2xl border border-gray-100 focus-within:border-[#8144FE] focus-within:bg-white transition-all'>
-                                <Phone size={18} className='text-gray-400 group-focus-within:text-[#8144FE] transition-colors shrink-0' />
-                                <div className='flex items-center mx-3 gap-2 border-r border-gray-200 pr-3'>
-                                    <span className='text-[16px] font-bold group-focus-within:text-[#8144FE] transition-colors text-gray-400'>+998</span>
-                                </div>
-                                <input
-                                    required
-                                    placeholder="99 123 45 67"
-                                    className="flex-1 bg-transparent outline-none text-[16px] font-medium text-[#0F172B] placeholder:text-gray-400"
-                                    type="number"
-                                    value={updatedNumber}
-                                    onChange={(e) => setUpdatedNumber(e.target.value)}
-                                />
-                            </div>
-                        </div>
 
                         <button type="submit" className="w-full bg-[#8144FE] text-white h-14 rounded-2xl font-black text-lg hover:bg-[#6c34e0] transition-all transform active:scale-[0.98] shadow-lg shadow-indigo-100 mt-2 cursor-pointer">
                             O&apos;zgarishlarni saqlash

@@ -13,11 +13,11 @@ const Header = () => {
         <div className='w-full px-5 py-2 sm:py-3 flex justify-between items-center bg-white border-b border-[#DFE5ED]'>
             <div className='flex items-center gap-4'>
                 <MenuIcon 
-                    className='w-7 h-7 text-indigo-600 cursor-pointer hover:bg-slate-50 rounded-md transition-colors' 
+                    className='w-6 h-6 sm:w-7 sm:h-7 text-indigo-600 cursor-pointer hover:bg-slate-50 rounded-md transition-colors' 
                     onClick={toggleMenu}
                 />
 
-                <Link href={'/'}>
+                <Link href={'/dashboard'}>
                     <Image src={'/assets/logo.png'} alt='logo' width={140} height={50} className='min-w-25 w-25 sm:min-w-28 md:min-w-32 md:w-32 lg:w-35' />
                 </Link>
             </div>
@@ -32,6 +32,8 @@ const Header = () => {
                     <Image src={'/assets/diamond.png'} alt='olmos' width={24} height={24} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
                     <h2 className='text-[#8144FE] font-medium text-[14px] lg:text-[16px]'><span className='hidden sm:inline-block'>Olmoslar</span> 1200 ta</h2>
                 </Link>
+
+                <Link href={'/auth'}>kirish</Link>
             </div>
         </div>
     )

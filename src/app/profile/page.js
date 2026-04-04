@@ -1,36 +1,59 @@
 'use client'
 
 import Image from 'next/image'
-import React, { use, useState } from 'react'
+import React, { useState } from 'react'
 import { Edit3, Settings, BookOpen, Download, Calendar, Heart, Brain, LogOut } from 'lucide-react'
 import UpdateProfileModal from '@/components/UpdateProfileModal'
+import { supabase } from '@/lib/supabase'
 
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const user = {
-    name: "Asadbek Karimov",
-    username: "@asadbek_dev",
-    bio: "Filologiya bo'yicha mutaxassis va kitobsevar. Bu erda o'zimga yoqqan nodir kitoblarni saqlab boraman.",
-    joinDate: "Yanvar 2024",
+  const [user, setUser] = useState({
+    name: "Yuklanmoqda...",
+    username: "@user",
+    bio: "Filologiya bo'yicha mutaxassis va kitobsevar.",
+    joinDate: "...",
     avatar: "/assets/book.webp",
-    number: "+998 99 123 45 67",
     stats: [
       { label: "Saqlangan kitoblar", count: 24, icon: <Heart size={18} className="text-pink-500" /> },
       { label: "Yechilgan testlar", count: 12, icon: <Brain size={18} className="text-blue-500" /> },
       { label: "Yuklangan kitoblar", count: 8, icon: <Download size={18} className="text-green-500" /> },
     ]
+  })
+
+  const [loading, setLoading] = useState(true)
+
+  React.useEffect(() => {
+    async function getUserData() {
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (authUser) {
+        setUser(prev => ({
+          ...prev,
+          name: authUser.user_metadata?.full_name + " " + (authUser.user_metadata?.surname || ""),
+          username: "@" + (authUser.email?.split('@')[0] || "user"),
+          joinDate: new Date(authUser.created_at).toLocaleDateString('uz-UZ', { month: 'long', year: 'numeric' })
+        }))
+      }
+      setLoading(false)
+    }
+    getUserData()
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    window.location.href = "/"
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F8FB] pb-20">
+    <div className="min-h-screen bg-[#F5F8FB] pb-20 text-slate-900">
       <div className="relative">
         <div className='h-48 sm:h-64 bg-linear-to-r from-[#8144FE] to-[#5A2DB2] rounded-t-2xl rounded-b-[30px] shadow-lg overflow-hidden'>
           <div className="absolute inset-0 opacity-45 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         </div>
 
-        <div className="container mx-auto px-4 -mt-24 sm:-mt-32 relative z-10">
-          <div className="bg-white rounded-3xl bg-linear-to-r from-[#fcfaff] to-white shadow-xl shadow-blue-100/50 p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-end gap-6">
+        <div className="container mx-auto px-4 -mt-24 sm:-mt-32 relative z-10 text-slate-900">
+          <div className="bg-white rounded-3xl bg-linear-to-r from-[#fcfaff] to-white shadow-xl shadow-blue-100/50 p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-end gap-6 text-slate-900">
             <div className="relative group">
               <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-white">
                 <Image
@@ -43,12 +66,7 @@ const Page = () => {
               </div>
             </div>
 
-            <div className="flex-1 text-center md:text-left flex flex-col gap-1">
-              <div className="mb-1">
-                <span className="inline-block px-3 py-1 text-xs font-bold text-[#8144FE] bg-[#8144FE]/5 rounded-lg border border-[#8144FE]/10">
-                  {user.number}
-                </span>
-              </div>
+            <div className="flex-1 text-center md:text-left flex flex-col gap-1 text-slate-900">
               <h1 className="text-3xl sm:text-4xl font-bold text-[#0F172B]">{user.name}</h1>
               <p className="text-indigo-600 font-medium mb-3">{user.username}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-[#45556C] text-sm">
@@ -65,7 +83,10 @@ const Page = () => {
               >
                 <Edit3 size={18} /> Profilni tahrirlash
               </button>
-              <button className="p-2.5 border-2 border-gray-200 cursor-pointer rounded-xl hover:bg-gray-50 transition-colors text-gray-700">
+              <button 
+                onClick={handleLogout}
+                className="p-2.5 border-2 border-gray-200 cursor-pointer rounded-xl hover:bg-gray-50 transition-colors text-gray-700"
+              >
                 <LogOut size={22} />
               </button>
             </div>

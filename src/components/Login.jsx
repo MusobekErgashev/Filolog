@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react'
 
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -9,23 +10,21 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
 
-  async function formSubmit(e) {
+  async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
     setErrorMsg("")
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
 
-      if (signInError) throw signInError
+      if (error) throw error
 
       if (data.user) {
-        console.log("Kirdi:", data.user)
-        // Refresh or redirect can happen here if not handled by a global auth listener
-        window.location.reload() 
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setErrorMsg(err.message)
@@ -35,58 +34,85 @@ const Login = () => {
   }
 
   async function handleGoogleLogin() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    })
-    if (error) setErrorMsg(error.message)
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/dashboard'
+        }
+      })
+      if (error) throw error
+    } catch (err) {
+      setErrorMsg(err.message)
+      setLoading(false)
+    }
   }
 
+  const inputClasses = "w-full bg-gray-50 outline-none px-11 py-3.5 text-[14px] text-[#0F172B] rounded-2xl border border-gray-200 focus:border-[#006EDD] focus:ring-4 focus:ring-[#006fdd10] transition-all duration-300 placeholder:text-gray-400 disabled:opacity-50"
+  const labelClasses = "text-sm font-semibold text-gray-700 ml-1"
+
   return (
-    <div className='flex flex-col h-full anim-fade-in'>
-      <form action="" onSubmit={formSubmit} className='flex flex-col gap-5'>
+    <div className='flex flex-col h-full anim-fade-in py-2'>
+      <form onSubmit={handleLogin} className='flex flex-col gap-6'>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-gray-700 ml-1" htmlFor="email">Email manzili</label>
-          <input
-            required
-            disabled={loading}
-            className="w-full bg-gray-50 outline-none px-4 py-3.5 text-[14px] text-[#0F172B] rounded-2xl border border-gray-200 focus:border-[#006EDD] focus:ring-4 focus:ring-[#006fdd10] transition-all duration-300 placeholder:text-gray-400 disabled:opacity-50"
-            id="email"
-            type="email"
-            placeholder="example@mail.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <label className={labelClasses} htmlFor="email">Email manzili</label>
+          <div className='relative'>
+            <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>
+              <Mail size={18} />
+            </div>
+            <input
+              required
+              disabled={loading}
+              className={inputClasses}
+              id="email"
+              type="email"
+              placeholder="example@mail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between items-center ml-1">
-            <label className="text-sm font-semibold text-gray-700" htmlFor="password">Parol</label>
+            <label className={labelClasses} htmlFor="password">Parol</label>
             <button type="button" className="text-xs font-medium text-[#006EDD] cursor-pointer hover:underline transition-all">Parolni unutdingizmi?</button>
           </div>
-          <input
-            required
-            disabled={loading}
-            className="w-full bg-gray-50 outline-none px-4 py-3.5 text-[14px] text-[#0F172B] rounded-2xl border border-gray-200 focus:border-[#006EDD] focus:ring-4 focus:ring-[#006fdd10] transition-all duration-300 placeholder:text-gray-400 disabled:opacity-50"
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className='relative'>
+            <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>
+              <Lock size={18} />
+            </div>
+            <input
+              required
+              disabled={loading}
+              className={inputClasses}
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
         </div>
 
-        <p className={`text-[#F84800] text-[13px] text-center font-medium transition-opacity duration-300 ${errorMsg ? 'opacity-100' : 'opacity-0'}`}>
-          {errorMsg || 'Xatolik yuz berdi!'}
-        </p>
+        {errorMsg && (
+          <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
+            <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
+            {errorMsg}
+          </p>
+        )}
 
         <button 
           disabled={loading}
-          className='w-full py-4 rounded-2xl cursor-pointer text-white font-bold text-[16px] transition-all duration-300 bg-[#006EDD] hover:bg-[#0052a3] shadow-lg shadow-[#006fdd20] active:scale-[0.98] mt-2 disabled:bg-gray-400 disabled:shadow-none'
+          className='w-full py-4 rounded-2xl cursor-pointer text-white font-bold text-[16px] transition-all duration-300 bg-[#006EDD] hover:bg-[#0052a3] shadow-lg shadow-[#006fdd20] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed'
         >
-          {loading ? "Yuklanmoqda..." : "Kirish"}
+          {loading ? <Loader2 className='animate-spin' size={20} /> : (
+            <>
+                Tizimga kirish
+                <ArrowRight size={18} />
+            </>
+          )}
         </button>
       </form>
 

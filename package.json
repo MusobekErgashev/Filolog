@@ -13,6 +13,7 @@
     "@google/genai": "^1.42.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.2",
+    "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.100.1",
     "ai": "^6.0.99",
     "lucide-react": "^0.577.0",

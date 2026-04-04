@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 const Auth = () => {
     const [state, setState] = useState(true)
     const [session, setSession] = useState(null)
+    const [regStep, setRegStep] = useState(1)
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -79,26 +80,36 @@ const Auth = () => {
                         <Image src={'/assets/logo.png'} alt='logo' width={150} height={60} className='w-36 h-auto' />
                     </div>
 
-                    <div className='w-full p-1 bg-gray-100 rounded-2xl flex relative mb-8'>
-                        <button 
-                            className={`flex-1 py-3 cursor-pointer text-sm font-semibold transition-all duration-300 relative z-10 ${state ? 'text-[#006EDD]' : 'text-gray-500'}`}
-                            onClick={() => setState(true)}
-                        >
-                            Kirish
-                        </button>
-                        <button 
-                            className={`flex-1 py-3 cursor-pointer text-sm font-semibold transition-all duration-300 relative z-10 ${!state ? 'text-[#006EDD]' : 'text-gray-500'}`}
-                            onClick={() => setState(false)}
-                        >
-                            {`Ro'yxatdan o'tish`}
-                        </button>
-                        <div 
-                            className={`absolute top-1 bottom-1 w-[calc(50%-8px)] bg-white rounded-xl shadow-md transition-all duration-500 ease-in-out transform ${state ? 'left-1' : 'left-1/2 ml-1'}`}
-                        ></div>
-                    </div>
+                    {!state && regStep === 2 ? (
+                        <div className='w-full py-3 px-4 bg-blue-50 text-[#006EDD] rounded-2xl text-xs font-bold flex items-center justify-center gap-2 mb-8 anim-fade-in'>
+                            <div className='w-2 h-2 bg-[#006EDD] rounded-full animate-pulse'></div>
+                            Emailni tasdiqlash kutilmoqda
+                        </div>
+                    ) : (
+                        <div className='w-full p-1 bg-gray-100 rounded-2xl flex relative mb-8'>
+                            <button 
+                                className={`flex-1 py-3 cursor-pointer text-sm font-semibold transition-all duration-300 relative z-10 ${state ? 'text-[#006EDD]' : 'text-gray-500'}`}
+                                onClick={() => setState(true)}
+                            >
+                                Kirish
+                            </button>
+                            <button 
+                                className={`flex-1 py-3 cursor-pointer text-sm font-semibold transition-all duration-300 relative z-10 ${!state ? 'text-[#006EDD]' : 'text-gray-500'}`}
+                                onClick={() => {
+                                    setState(false)
+                                    setRegStep(1)
+                                }}
+                            >
+                                {`Ro'yxatdan o'tish`}
+                            </button>
+                            <div 
+                                className={`absolute top-1 bottom-1 w-[calc(50%-8px)] bg-white rounded-xl shadow-md transition-all duration-500 ease-in-out transform ${state ? 'left-1' : 'left-1/2 ml-1'}`}
+                            ></div>
+                        </div>
+                    )}
 
                     <div className='flex-1'>
-                        {state ? <Login /> : <Register />}
+                        {state ? <Login /> : <Register onStepChange={(step) => setRegStep(step)} />}
                     </div>
                 </div>
             </div>
