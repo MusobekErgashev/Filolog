@@ -24,12 +24,12 @@ const Header = () => {
 
             <div className='flex gap-2.5 sm:gap-5 items-center  rounded px-3 py-1'>
                 <Link href={'/liderboard'} className='flex gap-2 items-center'>
-                    <Image src={'/assets/rank.png'} alt='olmos' width={0} height={0} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
+                    <Image src={'/assets/rank.png'} alt='olmos' width={24} height={24} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
                     <h2 className='text-[#CA1717] font-medium text-[14px] lg:text-[16px]'><span className='hidden sm:inline-block'>Reyting</span> {"8-o'rin"}</h2>
                 </Link>
 
                 <Link href={'/liderboard'} className='flex gap-2 items-center'>
-                    <Image src={'/assets/diamond.png'} alt='olmos' width={0} height={0} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
+                    <Image src={'/assets/diamond.png'} alt='olmos' width={24} height={24} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
                     <h2 className='text-[#8144FE] font-medium text-[14px] lg:text-[16px]'><span className='hidden sm:inline-block'>Olmoslar</span> 1200 ta</h2>
                 </Link>
             </div>
