@@ -16,9 +16,9 @@ const Page = () => {
     joinDate: "...",
     avatar: "/assets/book.webp",
     stats: [
-      { label: "Saqlangan kitoblar", count: 24, icon: <Heart size={18} className="text-pink-500" /> },
+      { label: "Saqlangan kitoblar", count: 0, icon: <Heart size={18} className="text-pink-500" /> },
       { label: "Yechilgan testlar", count: 12, icon: <Brain size={18} className="text-blue-500" /> },
-      { label: "Yuklangan kitoblar", count: 8, icon: <Download size={18} className="text-green-500" /> },
+      { label: "Yuklangan kitoblar", count: 0, icon: <Download size={18} className="text-green-500" /> },
     ]
   })
 
@@ -28,11 +28,19 @@ const Page = () => {
     async function getUserData() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (authUser) {
+        const meta = authUser.user_metadata || {}
+        const fullName = meta.full_name || ""
+        const surname = meta.surname || ""
+        const displayDisplayName = (surname && !fullName.includes(surname)) 
+          ? `${fullName} ${surname}`.trim() 
+          : fullName
+          
         setUser(prev => ({
           ...prev,
-          name: authUser.user_metadata?.full_name + " " + (authUser.user_metadata?.surname || ""),
-          username: "@" + (authUser.email?.split('@')[0] || "user"),
-          joinDate: new Date(authUser.created_at).toLocaleDateString('uz-UZ', { month: 'long', year: 'numeric' })
+          name: displayDisplayName,
+          username: (authUser.email || ""),
+          joinDate: new Date(authUser.created_at).toLocaleDateString('uz-UZ'),
+          avatar: authUser.user_metadata?.avatar_url || "/assets/book.webp"
         }))
       }
       setLoading(false)
@@ -71,7 +79,7 @@ const Page = () => {
               <p className="text-indigo-600 font-medium mb-3">{user.username}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-[#45556C] text-sm">
                 <span className="flex items-center gap-1.5 bg-gray-100 px-3 py-1 rounded-full">
-                  <Calendar size={14} /> {user.joinDate}{`da qo'shilgan`}
+                  <Calendar size={14} /> {user.joinDate}{` da qo'shilgan`}
                 </span>
               </div>
             </div>

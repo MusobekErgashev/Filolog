@@ -3,7 +3,7 @@ export const Pages = [
         pageName: "Bosh sahifa",
         iconActive: "/assets/homeActive.png",
         icon: "/assets/home.png",
-        path: "/",
+        path: "/dashboard",
         id: 1,
     },
     // {
@@ -13,33 +13,33 @@ export const Pages = [
     //     path: "/lessons",
     //     id: 2,
     // },
-    {
-        pageName: "Kutubxona",
-        iconActive: "/assets/libraryActive.png",
-        icon: "/assets/library.png",
-        path: "/library",
-        id: 2,
-    },
+    // {
+    //     pageName: "Kutubxona",
+    //     iconActive: "/assets/libraryActive.png",
+    //     icon: "/assets/library.png",
+    //     path: "/library",
+    //     id: 2,
+    // },
     {
         pageName: "Testlar",
         iconActive: "/assets/quizActive.png",
         icon: "/assets/quiz.png",
         path: "/quiz",
-        id: 3,
+        id: 2,
     },
     {
         pageName: "Vazifalar",
         iconActive: "/assets/homeworkActive.png",
         icon: "/assets/homework.png",
         path: "/homework",
-        id: 4,
+        id: 3,
     },
     {
         pageName: "Peshqadamlar",
         iconActive: "/assets/liderboardActive.png",
         icon: "/assets/liderboard.png",
         path: "/liderboard",
-        id: 5,
+        id: 4,
     },
     // {
     //     pageName: "Premium obuna",
@@ -56,3 +56,23 @@ export const Pages = [
     //     id: 7,
     // },
 ]
+
+const json = {
+    AllUsers: 0,
+    users: [
+        {
+            id: 1,
+            name: "",
+            surname: "",
+            email: "",
+            avatar: "",
+            rank: 1,
+            diamonds: 0,
+            timeSpent: 0,
+            todayTimeSpent: 0,
+            joinDate: "",
+            testsTaken: 0,
+            isSubscribed: false,
+        }
+    ]
+}

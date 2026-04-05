@@ -8,6 +8,30 @@ const QuizModal = ({ quiz, onClose }) => {
     Array(quiz.questions.length).fill(null)
   );
   const [showResults, setShowResults] = useState(false);
+  const [timeLeft, setTimeLeft] = useState((quiz.duration || 10) * 60);
+
+  React.useEffect(() => {
+    if (showResults) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setShowResults(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showResults]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const question = quiz.questions[currentQuestion];
 
@@ -126,7 +150,7 @@ const QuizModal = ({ quiz, onClose }) => {
           </button>
         </div>
 
-        {/* Progress */}
+        {/* Progress & Timer */}
         <div className="flex items-center gap-3">
           <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
             <div
@@ -136,9 +160,14 @@ const QuizModal = ({ quiz, onClose }) => {
               }}
             ></div>
           </div>
-          <span className="text-sm font-medium text-gray-500 whitespace-nowrap">
-            {currentQuestion + 1}/{quiz.questions.length}
-          </span>
+          <div className="flex items-center gap-3">
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold ${timeLeft < 60 ? 'bg-red-50 text-red-500 animate-pulse' : 'bg-indigo-50 text-[#8144FE]'}`}>
+               <span className="text-[12px]">⏱️</span> {formatTime(timeLeft)}
+            </div>
+            <span className="text-sm font-medium text-gray-500 whitespace-nowrap">
+              {currentQuestion + 1}/{quiz.questions.length}
+            </span>
+          </div>
         </div>
 
         {/* Question */}

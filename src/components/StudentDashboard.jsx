@@ -1,14 +1,32 @@
 'use client'
 
 import Image from 'next/image'
-import React from 'react'
+import { supabase } from '@/lib/supabase'
+import { useEffect, useState } from 'react'
 
 const StudentDashboard = () => {
+    const [userCount, setUserCount] = useState(0)
+
+    useEffect(() => {
+        const fetchUserCount = async () => {
+            const { count, error } = await supabase
+                .from('profiles')
+                .select('*', { count: 'exact', head: true })
+            
+            if (!error && count !== null) {
+                setUserCount(count)
+            } else {
+                setUserCount(0)
+            }
+        }
+        fetchUserCount()
+    }, [])
+
     const dataStudent = [
         {
             id: 1,
             title: "Barcha",
-            value: 248,
+            value: userCount,
             icon: "/assets/users.png",
             color: "bg-[#0097F6]",
         },

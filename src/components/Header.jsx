@@ -32,8 +32,6 @@ const Header = () => {
                     <Image src={'/assets/diamond.png'} alt='olmos' width={24} height={24} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
                     <h2 className='text-[#8144FE] font-medium text-[14px] lg:text-[16px]'><span className='hidden sm:inline-block'>Olmoslar</span> 1200 ta</h2>
                 </Link>
-
-                <Link href={'/auth'}>kirish</Link>
             </div>
         </div>
     )

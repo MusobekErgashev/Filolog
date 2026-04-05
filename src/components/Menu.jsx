@@ -7,10 +7,23 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import useMenuStore from '@/store/menuStore'
 import { X } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 const Menu = () => {
     const pathname = usePathname()
     const { isOpen, closeMenu } = useMenuStore()
+    const [user, setUser] = React.useState(null)
+
+    React.useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
+        }
+        fetchUser()
+    }, [])
+
+    const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Foydalanuvchi'
+    const userRole = 'Talaba'
 
     return (
         <>
@@ -83,8 +96,8 @@ const Menu = () => {
                             }
                         </div>
                         <div className='flex flex-col'>
-                            <h3 className='text-[15px] font-semibold leading-tight'>Musobek</h3>
-                            <p className={`text-[12px] ${pathname === "/profile" ? 'text-indigo-100' : 'text-slate-500'}`}>Talaba</p>
+                            <h3 className='text-[15px] font-semibold leading-tight'>{userName}</h3>
+                            <p className={`text-[12px] ${pathname === "/profile" ? 'text-indigo-100' : 'text-slate-500'}`}>{userRole}</p>
                         </div>
                     </Link>
                 </div>

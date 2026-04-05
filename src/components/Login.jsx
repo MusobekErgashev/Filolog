@@ -77,7 +77,6 @@ const Login = () => {
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between items-center ml-1">
             <label className={labelClasses} htmlFor="password">Parol</label>
-            <button type="button" className="text-xs font-medium text-[#006EDD] cursor-pointer hover:underline transition-all">Parolni unutdingizmi?</button>
           </div>
           <div className='relative'>
             <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>

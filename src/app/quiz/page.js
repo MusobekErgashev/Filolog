@@ -4,12 +4,30 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { quizzes } from "./quizData";
 import QuizModal from "@/components/QuizModal";
+import AddQuizModal from "@/components/AddQuizModal";
 
 const Page = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [completedQuizzes, setCompletedQuizzes] = useState({});
+  const [allQuizzes, setAllQuizzes] = useState(quizzes);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const totalQuizzes = quizzes.length;
+  // Load user quizzes from localStorage
+  React.useEffect(() => {
+    const savedQuizzes = localStorage.getItem('userQuizzes');
+    if (savedQuizzes) {
+      setAllQuizzes([...quizzes, ...JSON.parse(savedQuizzes)]);
+    }
+  }, []);
+
+  const handleAddQuiz = (newQuiz) => {
+    const userQuizzes = JSON.parse(localStorage.getItem('userQuizzes') || '[]');
+    const updatedUserQuizzes = [...userQuizzes, newQuiz];
+    localStorage.setItem('userQuizzes', JSON.stringify(updatedUserQuizzes));
+    setAllQuizzes([...quizzes, ...updatedUserQuizzes]);
+  };
+
+  const totalQuizzes = allQuizzes.length;
   const completedCount = Object.keys(completedQuizzes).length;
 
   const data = [
@@ -80,13 +98,16 @@ const Page = () => {
       </div>
 
       <div className="flex justify-end">
-        <button className="bg-[#8144FE] text-white px-6 py-3 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200">
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="bg-[#8144FE] text-white px-6 py-3 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 cursor-pointer active:scale-95 font-bold"
+        >
           {`Yangi test qo'shish`}
         </button>
       </div>
 
       <div className="flex flex-col gap-3 w-full">
-        {quizzes.map((quiz) => {
+        {allQuizzes.map((quiz) => {
           const isCompleted = completedQuizzes[quiz.id];
 
           return (
@@ -131,7 +152,11 @@ const Page = () => {
                     width={0}
                     height={0}
                   />
-                  <p className="text-[13px] lg:text-[16px]">10 daqiqa</p>
+                  <p className="text-[13px] lg:text-[16px]">{quiz.duration || 10} daqiqa</p>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-yellow-50 text-amber-600 rounded-lg border border-amber-100">
+                   <span className="text-[12px] lg:text-[14px]">💎</span>
+                   <span className="text-[13px] lg:text-[14px] font-bold">{quiz.diamonds || 10}</span>
                 </div>
               </div>
             </div>
@@ -141,6 +166,13 @@ const Page = () => {
 
       {selectedQuiz && (
         <QuizModal quiz={selectedQuiz} onClose={handleQuizClose} />
+      )}
+
+      {isAddModalOpen && (
+        <AddQuizModal 
+          setIsModalOpen={setIsAddModalOpen} 
+          onAddQuiz={handleAddQuiz} 
+        />
       )}
     </div>
   );

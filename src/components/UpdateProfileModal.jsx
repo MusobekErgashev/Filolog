@@ -3,17 +3,36 @@
 import { X, Camera, User, Mail, Phone, Lock } from 'lucide-react'
 import React, { useState, useRef } from 'react'
 import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
 
 const UpdateProfileModal = ({ setIsModalOpen }) => {
     const [updatedEmail, setUpdatedEmail] = useState("")
     const [updatedName, setUpdatedName] = useState("")
     const [updatedSurName, setUpdatedSurName] = useState("")
     const [avatarPreview, setAvatarPreview] = useState("/assets/book.webp")
+    const [avatarFile, setAvatarFile] = useState(null)
+    const [loading, setLoading] = useState(false)
     const fileInputRef = useRef(null)
+
+    React.useEffect(() => {
+        const fetchUserData = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                setUpdatedEmail(user.email || "")
+                setUpdatedName(user.user_metadata?.full_name || "")
+                setUpdatedSurName(user.user_metadata?.surname || "")
+                if (user.user_metadata?.avatar_url) {
+                    setAvatarPreview(user.user_metadata.avatar_url)
+                }
+            }
+        }
+        fetchUserData()
+    }, [])
 
     const handleImageChange = (e) => {
         const file = e.target.files[0]
         if (file) {
+            setAvatarFile(file)
             const reader = new FileReader()
             reader.onloadend = () => {
                 setAvatarPreview(reader.result)
@@ -23,9 +42,51 @@ const UpdateProfileModal = ({ setIsModalOpen }) => {
     }
 
     async function submitFunc(e) {
-        e.preventDefault()
-        // Bu erda API chaqiruvi bo'lishi mumkin
-        setIsModalOpen(false)
+        e.preventDefult()
+        setLoading(true)
+
+        try {
+            let avatar_url = avatarPreview
+
+            // 1. Upload image if a new one was selected
+            if (avatarFile) {
+                const fileExt = avatarFile.name.split('.').pop()
+                const fileName = `${Math.random()}.${fileExt}`
+                const filePath = `avatars/${fileName}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from('avatars')
+                    .upload(filePath, avatarFile)
+
+                if (uploadError) throw uploadError
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath)
+                
+                avatar_url = publicUrl
+            }
+
+            // 2. Update user metadata and email
+            const { error: updateError } = await supabase.auth.updateUser({
+                email: updatedEmail,
+                data: {
+                    full_name: updatedName,
+                    surname: updatedSurName,
+                    avatar_url: avatar_url
+                }
+            })
+
+            if (updateError) throw updateError
+
+            // Redirect or refresh to show changes
+            window.location.reload()
+            setIsModalOpen(false)
+        } catch (error) {
+            alert("Error updating profile: " + error.message)
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -117,8 +178,12 @@ const UpdateProfileModal = ({ setIsModalOpen }) => {
                         </div>
 
 
-                        <button type="submit" className="w-full bg-[#8144FE] text-white h-14 rounded-2xl font-black text-lg hover:bg-[#6c34e0] transition-all transform active:scale-[0.98] shadow-lg shadow-indigo-100 mt-2 cursor-pointer">
-                            O&apos;zgarishlarni saqlash
+                        <button 
+                            disabled={loading}
+                            type="submit" 
+                            className="w-full bg-[#8144FE] text-white h-14 rounded-2xl font-black text-lg hover:bg-[#6c34e0] transition-all transform active:scale-[0.98] shadow-lg shadow-indigo-100 mt-2 cursor-pointer disabled:opacity-70"
+                        >
+                            {loading ? "Saqlanmoqda..." : "O'zgarishlarni saqlash"}
                         </button>
                     </form>
                 </div>
