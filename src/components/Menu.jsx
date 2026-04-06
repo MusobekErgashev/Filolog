@@ -73,8 +73,14 @@ const Menu = () => {
                                             className='w-5 h-5'
                                         />
                                     </div>
-
-                                    <span>{item.pageName}</span>
+                                    <div className="flex items-center justify-between flex-1">
+                                        <span>{item.pageName}</span>
+                                        {item.soon && (
+                                            <span className='px-2.5 py-0.5 bg-linear-to-r from-purple-500 to-indigo-500 text-white rounded-full text-[11px] font-bold uppercase tracking-wide shadow-sm shadow-purple-200 animate-pulse'>
+                                                tez orada
+                                            </span>
+                                        )}
+                                    </div>
                                 </Link>
                             )
                         })

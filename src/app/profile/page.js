@@ -14,6 +14,7 @@ const Page = () => {
     username: "@user",
     bio: "Filologiya bo'yicha mutaxassis va kitobsevar.",
     joinDate: "...",
+    joinDate: "...",
     avatar: "/assets/book.webp",
     stats: [
       { label: "Saqlangan kitoblar", count: 0, icon: <Heart size={18} className="text-pink-500" /> },
@@ -31,10 +32,10 @@ const Page = () => {
         const meta = authUser.user_metadata || {}
         const fullName = meta.full_name || ""
         const surname = meta.surname || ""
-        const displayDisplayName = (surname && !fullName.includes(surname)) 
-          ? `${fullName} ${surname}`.trim() 
+        const displayDisplayName = (surname && !fullName.includes(surname))
+          ? `${fullName} ${surname}`.trim()
           : fullName
-          
+
         setUser(prev => ({
           ...prev,
           name: displayDisplayName,
@@ -91,7 +92,7 @@ const Page = () => {
               >
                 <Edit3 size={18} /> Profilni tahrirlash
               </button>
-              <button 
+              <button
                 onClick={handleLogout}
                 className="p-2.5 border-2 border-gray-200 cursor-pointer rounded-xl hover:bg-gray-50 transition-colors text-gray-700"
               >

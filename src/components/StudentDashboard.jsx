@@ -9,14 +9,19 @@ const StudentDashboard = () => {
 
     useEffect(() => {
         const fetchUserCount = async () => {
-            const { count, error } = await supabase
-                .from('profiles')
-                .select('*', { count: 'exact', head: true })
-            
-            if (!error && count !== null) {
-                setUserCount(count)
-            } else {
-                setUserCount(0)
+            try {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id')
+
+                if (error) {
+                    console.error("Profil count yuklashda xatolik:", error)
+                    setUserCount(0)
+                } else if (data) {
+                    setUserCount(data.length)
+                }
+            } catch (error) {
+                console.error("Profil count kutilmagan xato:", error)
             }
         }
         fetchUserCount()
@@ -25,29 +30,29 @@ const StudentDashboard = () => {
     const dataStudent = [
         {
             id: 1,
-            title: "Barcha",
+            title: "Foydalanuvchilar",
             value: userCount,
             icon: "/assets/users.png",
             color: "bg-[#0097F6]",
         },
         {
             id: 2,
-            title: "Reyting",
-            value: 8,
+            title: "Reytingim",
+            value: 0,
             icon: "/assets/yourRank.png",
             color: "bg-[#E641B4]",
         },
         {
             id: 3,
             title: "Bugun",
-            value: 2,
+            value: 0,
             icon: "/assets/todayTime.png",
             color: "bg-[#00C463]",
         },
         {
             id: 4,
             title: "Umumiy",
-            value: 8,
+            value: 0,
             icon: "/assets/allTime.png",
             color: "bg-[#94CF13]",
         },

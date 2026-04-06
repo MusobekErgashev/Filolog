@@ -2,13 +2,18 @@
 
 import React, { useState } from "react";
 
-const QuizModal = ({ quiz, onClose }) => {
+const QuizModal = ({ quiz, onClose, onProgressUpdate }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState(
     Array(quiz.questions.length).fill(null)
   );
   const [showResults, setShowResults] = useState(false);
   const [timeLeft, setTimeLeft] = useState((quiz.duration || 10) * 60);
+
+  const calculateProgress = (answers) => {
+    const answeredCount = answers.filter(a => a !== null).length;
+    return Math.round((answeredCount / quiz.questions.length) * 100);
+  };
 
   React.useEffect(() => {
     if (showResults) return;
@@ -40,6 +45,10 @@ const QuizModal = ({ quiz, onClose }) => {
     const newAnswers = [...selectedAnswers];
     newAnswers[currentQuestion] = optionIndex;
     setSelectedAnswers(newAnswers);
+
+    if (onProgressUpdate) {
+      onProgressUpdate(calculateProgress(newAnswers));
+    }
   };
 
   const handleNext = () => {
@@ -124,7 +133,7 @@ const QuizModal = ({ quiz, onClose }) => {
           </p>
 
           <button
-            onClick={onClose}
+            onClick={() => onClose({ correctCount, incorrectCount, percentage })}
             className="w-full py-3 bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white font-semibold rounded-xl hover:opacity-90 transition-all cursor-pointer active:scale-[0.98]"
           >
             Yopish
@@ -162,7 +171,7 @@ const QuizModal = ({ quiz, onClose }) => {
           </div>
           <div className="flex items-center gap-3">
             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold ${timeLeft < 60 ? 'bg-red-50 text-red-500 animate-pulse' : 'bg-indigo-50 text-[#8144FE]'}`}>
-               <span className="text-[12px]">⏱️</span> {formatTime(timeLeft)}
+              <span className="text-[12px]">⏱️</span> {formatTime(timeLeft)}
             </div>
             <span className="text-sm font-medium text-gray-500 whitespace-nowrap">
               {currentQuestion + 1}/{quiz.questions.length}

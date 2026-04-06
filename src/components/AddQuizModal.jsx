@@ -3,12 +3,12 @@
 import { X, Plus, Trash2, Clock, HelpCircle, Save } from 'lucide-react'
 import React, { useState } from 'react'
 
-const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
-    const [duration, setDuration] = useState(10)
-    const [diamonds, setDiamonds] = useState(10)
-    const [questions, setQuestions] = useState([
+const AddQuizModal = ({ setIsModalOpen, onAddQuiz, initialData }) => {
+    const [title, setTitle] = useState(initialData?.title || "")
+    const [description, setDescription] = useState(initialData?.description || "")
+    const [duration, setDuration] = useState(initialData?.duration || 10)
+    const [diamonds, setDiamonds] = useState(initialData?.diamonds || 10)
+    const [questions, setQuestions] = useState(initialData?.questions || [
         { question: "", options: ["", "", "", ""], correctAnswer: 0 }
     ])
 
@@ -43,7 +43,6 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
     const handleSubmit = (e) => {
         e.preventDefault()
         const newQuiz = {
-            id: Date.now(),
             title,
             description,
             duration: Number(duration),
@@ -58,7 +57,7 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
         <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
             <div className='bg-white rounded-[32px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300'>
                 <div className='p-6 border-b flex items-center justify-between bg-linear-to-r from-[#8144FE] to-[#5A2DB2] text-white'>
-                    <h2 className='text-xl font-bold'>Yangi test qo&apos;shish</h2>
+                    <h2 className='text-xl font-bold'>{initialData ? "Testni tahrirlash" : "Yangi test qo'shish"}</h2>
                     <button onClick={() => setIsModalOpen(false)} className='p-2 hover:bg-white/20 rounded-full transition-all cursor-pointer'>
                         <X size={20} />
                     </button>
@@ -69,7 +68,7 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
                     <div className='space-y-4'>
                         <div className='space-y-1'>
                             <label className='text-sm font-bold text-gray-700 ml-1'>Test nomi</label>
-                            <input 
+                            <input
                                 required
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
@@ -79,7 +78,7 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
                         </div>
                         <div className='space-y-1'>
                             <label className='text-sm font-bold text-gray-700 ml-1'>Tavsif</label>
-                            <textarea 
+                            <textarea
                                 required
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
@@ -92,7 +91,7 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
                                 <label className='text-sm font-bold text-gray-700 ml-1'>Vaqt (daqiqa)</label>
                                 <div className='relative'>
                                     <Clock size={18} className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
-                                    <input 
+                                    <input
                                         required
                                         type='number'
                                         min='1'
@@ -129,8 +128,8 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
                     <div className='space-y-6'>
                         <div className='flex items-center justify-between'>
                             <h3 className='text-lg font-bold text-gray-800'>Savollar</h3>
-                            <button 
-                                type='button' 
+                            <button
+                                type='button'
                                 onClick={handleAddQuestion}
                                 className='flex items-center gap-2 text-sm font-bold text-[#8144FE] hover:bg-[#8144FE]/10 px-4 py-2 rounded-xl transition-all cursor-pointer'
                             >
@@ -140,7 +139,7 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
 
                         {questions.map((q, qIndex) => (
                             <div key={qIndex} className='p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-4 relative group'>
-                                <button 
+                                <button
                                     type='button'
                                     onClick={() => handleRemoveQuestion(qIndex)}
                                     className='absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors p-2'
@@ -150,7 +149,7 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
 
                                 <div className='space-y-2'>
                                     <label className='text-sm font-bold text-gray-500'>Savol {qIndex + 1}</label>
-                                    <input 
+                                    <input
                                         required
                                         value={q.question}
                                         onChange={(e) => handleQuestionChange(qIndex, e.target.value)}
@@ -162,14 +161,14 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
                                 <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                                     {q.options.map((option, oIndex) => (
                                         <div key={oIndex} className='flex gap-2 items-center'>
-                                            <input 
+                                            <input
                                                 type='radio'
                                                 name={`correct-${qIndex}`}
                                                 checked={q.correctAnswer === oIndex}
                                                 onChange={() => handleCorrectAnswerChange(qIndex, oIndex)}
                                                 className='w-5 h-5 accent-[#8144FE] cursor-pointer'
                                             />
-                                            <input 
+                                            <input
                                                 required
                                                 value={option}
                                                 onChange={(e) => handleOptionChange(qIndex, oIndex, e.target.value)}
@@ -183,12 +182,12 @@ const AddQuizModal = ({ setIsModalOpen, onAddQuiz }) => {
                         ))}
                     </div>
 
-                    <button 
-                        type='submit' 
+                    <button
+                        type='submit'
                         disabled={Number(duration) > 10}
                         className={`w-full py-2.5 lg:py-4 text-white rounded-2xl font-bold text-md lg:text-lg transition-all shadow-lg cursor-pointer flex items-center justify-center gap-3 active:scale-[0.98] ${Number(duration) > 10 ? 'bg-gray-300 shadow-none cursor-not-allowed opacity-70' : 'bg-[#8144FE] hover:bg-[#6c34e0] shadow-indigo-100'}`}
                     >
-                        <Save size={20} /> Testni saqlash
+                        <Save size={20} /> {initialData ? "O'zgarishlarni saqlash" : "Testni saqlash"}
                     </button>
                 </form>
             </div>

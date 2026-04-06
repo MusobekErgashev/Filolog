@@ -30,7 +30,7 @@ export default function HeroSlider() {
           </div>
 
           <Link
-            href="/lessons"
+            href=""
             className="text-[14px] lg:text-[18px] flex items-center gap-2 bg-white text-indigo-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
@@ -50,7 +50,7 @@ export default function HeroSlider() {
           </div>
 
           <Link
-            href="/quiz"
+            href=""
             className="text-[14px] lg:text-[18px] flex items-center gap-2 justify-center bg-white text-blue-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
@@ -70,7 +70,7 @@ export default function HeroSlider() {
           </div>
 
           <Link
-            href="/library"
+            href=""
             className="text-[14px] lg:text-[18px] flex items-center gap-2 bg-white text-purple-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
@@ -90,7 +90,7 @@ export default function HeroSlider() {
           </div>
 
           <Link
-            href="/subscription"
+            href=""
             className="text-[14px] lg:text-[18px] flex items-center gap-2 bg-white text-green-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil

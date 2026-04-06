@@ -2,35 +2,173 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
-import { quizzes } from "./quizData";
 import QuizModal from "@/components/QuizModal";
 import AddQuizModal from "@/components/AddQuizModal";
+import { Pencil, Trash2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const Page = () => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
-  const [completedQuizzes, setCompletedQuizzes] = useState({});
-  const [allQuizzes, setAllQuizzes] = useState(quizzes);
+  const [editingQuiz, setEditingQuiz] = useState(null);
+  const [allQuizzes, setAllQuizzes] = useState([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState('user');
 
-  // Load user quizzes from localStorage
   React.useEffect(() => {
-    const savedQuizzes = localStorage.getItem('userQuizzes');
-    if (savedQuizzes) {
-      setAllQuizzes([...quizzes, ...JSON.parse(savedQuizzes)]);
-    }
+    const fetchRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        if (data?.role) setUserRole(data.role);
+      }
+    };
+    fetchRole();
   }, []);
 
-  const handleAddQuiz = (newQuiz) => {
-    const userQuizzes = JSON.parse(localStorage.getItem('userQuizzes') || '[]');
-    const updatedUserQuizzes = [...userQuizzes, newQuiz];
-    localStorage.setItem('userQuizzes', JSON.stringify(updatedUserQuizzes));
-    setAllQuizzes([...quizzes, ...updatedUserQuizzes]);
+  // Load quizzes from Supabase
+  React.useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('quizzes')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Supabase fetch error:", error);
+          return;
+        }
+
+        if (data) {
+          const mappedData = data.map(q => ({
+            ...q,
+            id: q.id,
+            duration: q.time,
+            diamonds: q.reward,
+            isCompleted: q.isCompleted || false,
+            progress: q.progress || 0,
+            questions: q.question || []
+          }));
+          setAllQuizzes(mappedData);
+        }
+      } catch (error) {
+        console.error("Error fetching quizzes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuizzes();
+  }, []);
+
+  const handleQuizClick = async (quiz) => {
+    // We already fetch the full details (question column) in the initial fetch
+    setSelectedQuiz(quiz);
+  };
+
+  const handleAddQuiz = async (newQuiz) => {
+    try {
+      const backendQuiz = {
+        title: newQuiz.title,
+        description: newQuiz.description,
+        time: newQuiz.duration,
+        reward: newQuiz.diamonds,
+        question: newQuiz.questions
+      };
+
+      if (editingQuiz) {
+        const { data, error } = await supabase
+          .from('quizzes')
+          .update(backendQuiz)
+          .eq('id', editingQuiz.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error updating quiz:", error);
+          alert("Saqlashda xatolik yuz berdi");
+          return;
+        }
+
+        const mappedQuiz = {
+          ...data,
+          id: data.id,
+          duration: data.time,
+          diamonds: data.reward,
+          isCompleted: data.isCompleted || false,
+          progress: data.progress || 0,
+          questions: data.question || []
+        };
+        
+        setAllQuizzes(prev => prev.map(q => q.id === editingQuiz.id ? mappedQuiz : q));
+      } else {
+        // Also set initial values for new quiz completion status
+        backendQuiz.isCompleted = false;
+        backendQuiz.progress = 0;
+
+        const { data, error } = await supabase
+          .from('quizzes')
+          .insert([backendQuiz])
+          .select()
+          .single();
+
+        if (error) {
+          console.error("Error adding quiz:", error);
+          alert("Saqlashda xatolik yuz berdi");
+          return;
+        }
+
+        const mappedQuiz = {
+          ...data,
+          id: data.id,
+          duration: data.time,
+          diamonds: data.reward,
+          isCompleted: data.isCompleted || false,
+          progress: data.progress || 0,
+          questions: data.question || []
+        };
+
+        setAllQuizzes(prev => [mappedQuiz, ...prev]);
+      }
+      setIsAddModalOpen(false);
+      setEditingQuiz(null);
+    } catch (error) {
+      console.error("Error saving quiz:", error);
+      alert("Xatolik yuz berdi");
+    }
+  };
+
+  const handleDeleteQuiz = async (e, id) => {
+    e.stopPropagation();
+    if (!confirm("Haqiqatan ham bu testni o'chirmoqchimisiz?")) return;
+
+    try {
+      const { error } = await supabase.from('quizzes').delete().eq('id', id);
+      
+      if (error) {
+        console.error("Error deleting quiz:", error);
+        alert("O'chirishda xatolik yuz berdi");
+        return;
+      }
+      
+      setAllQuizzes(prev => prev.filter(q => q.id !== id));
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      alert("Serverga ulanib bo'lmadi");
+    }
+  };
+
+  const handleEditClick = (e, quiz) => {
+    e.stopPropagation();
+    setEditingQuiz(quiz);
+    setIsAddModalOpen(true);
   };
 
   const totalQuizzes = allQuizzes.length;
-  const completedCount = Object.keys(completedQuizzes).length;
+  const completedCount = allQuizzes.filter(q => q.isCompleted).length;
 
-  const data = [
+  const statsData = [
     {
       id: 1,
       title: "Barcha testlar",
@@ -47,12 +185,40 @@ const Page = () => {
     },
   ];
 
-  const handleQuizClose = () => {
+  const handleProgressUpdate = async (progress) => {
     if (selectedQuiz) {
-      setCompletedQuizzes((prev) => ({
-        ...prev,
-        [selectedQuiz.id]: true,
-      }));
+      try {
+        const { error } = await supabase
+          .from('quizzes')
+          .update({ progress })
+          .eq('id', selectedQuiz.id);
+          
+        if (error) console.error("Error updating progress:", error);
+        else setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, progress } : q));
+      } catch (error) {
+        console.error("Error updating progress:", error);
+      }
+    }
+  };
+
+  const handleQuizClose = async (results) => {
+    if (selectedQuiz && results) {
+      if (results.percentage === 100) {
+        try {
+          const { error } = await supabase
+            .from('quizzes')
+            .update({ isCompleted: true, progress: 100 })
+            .eq('id', selectedQuiz.id);
+            
+          if (error) console.error("Error marking completion:", error);
+          else setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, isCompleted: true, progress: 100 } : q));
+        } catch (error) {
+          console.error("Error marking completion:", error);
+        }
+      } else {
+        const newProgress = results.percentage === 0 ? selectedQuiz.progress : selectedQuiz.progress;
+        setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, progress: newProgress } : q));
+      }
     }
     setSelectedQuiz(null);
   };
@@ -69,7 +235,7 @@ const Page = () => {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2 w-full">
-        {data.map((item) => {
+        {statsData.map((item) => {
           return (
             <div
               key={item.id}
@@ -97,33 +263,60 @@ const Page = () => {
         })}
       </div>
 
-      <div className="flex justify-end">
-        <button 
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-[#8144FE] text-white px-6 py-3 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 cursor-pointer active:scale-95 font-bold"
-        >
-          {`Yangi test qo'shish`}
-        </button>
-      </div>
+      {userRole === 'admin' && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-[#8144FE] text-white px-6 py-3 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 cursor-pointer active:scale-95 font-bold"
+          >
+            {`Yangi test qo'shish`}
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 w-full">
+        {loading && (
+          <div className="flex justify-center p-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#8144FE]"></div>
+          </div>
+        )}
+        {!loading && allQuizzes.length === 0 && (
+          <p className="text-center text-gray-500 py-10 font-medium">Hozircha testlar mavjud emas.</p>
+        )}
         {allQuizzes.map((quiz) => {
-          const isCompleted = completedQuizzes[quiz.id];
-
           return (
             <div
               key={quiz.id}
-              onClick={() => setSelectedQuiz(quiz)}
-              className="bg-white flex flex-col cursor-pointer hover:bg-gray-50 border-2 border-white gap-2 p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200"
+              onClick={() => handleQuizClick(quiz)}
+              className="bg-white flex flex-col cursor-pointer group hover:bg-gray-50 border-2 border-white gap-2 p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 relative overflow-hidden"
             >
-              <div className="flex gap-2 items-center">
-                <h1 className="font-semibold text-[18px] lg:text-[22px] leading-5.5">
-                  {quiz.title}
-                </h1>
-                {isCompleted && (
-                  <span className="text-[10px] lg:text-[14px] font-normal px-2 py-0.5 h-max bg-green-400 rounded">
-                    Tugatilgan
-                  </span>
+              <div className="flex gap-2 items-center justify-between">
+                <div className="flex gap-2 items-center">
+                  <h1 className="font-semibold text-[18px] lg:text-[22px] leading-5.5">
+                    {quiz.title}
+                  </h1>
+                  {quiz.isCompleted && (
+                    <span className="text-[10px] lg:text-[14px] font-normal px-2 py-0.5 h-max bg-green-100 text-green-700 rounded-md border border-green-200">
+                      Tugatilgan
+                    </span>
+                  )}
+                </div>
+
+                {userRole === 'admin' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => handleEditClick(e, quiz)}
+                      className="p-2 hover:bg-blue-50 cursor-pointer text-blue-500 rounded-xl transition-all"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                    <button
+                      onClick={(e) => handleDeleteQuiz(e, quiz.id)}
+                      className="p-2 hover:bg-red-50 cursor-pointer text-red-500 rounded-xl transition-all"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -155,9 +348,22 @@ const Page = () => {
                   <p className="text-[13px] lg:text-[16px]">{quiz.duration || 10} daqiqa</p>
                 </div>
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-yellow-50 text-amber-600 rounded-lg border border-amber-100">
-                   <span className="text-[12px] lg:text-[14px]">💎</span>
-                   <span className="text-[13px] lg:text-[14px] font-bold">{quiz.diamonds || 10}</span>
+                  <span className="text-[12px] lg:text-[14px]">💎</span>
+                  <span className="text-[13px] lg:text-[14px] font-bold">{quiz.diamonds || 10}</span>
                 </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className='w-full flex gap-3 items-center mt-2'>
+                <div className='flex-1 bg-gray-100 rounded-full h-1.5 lg:h-2 overflow-hidden'>
+                  <div
+                    className='h-full bg-linear-to-r from-[#8144FE] to-[#5B2CC7] rounded-full transition-all duration-500'
+                    style={{ width: `${quiz.isCompleted ? 100 : (quiz.progress || 0)}%` }}
+                  ></div>
+                </div>
+                <h1 className='w-max text-[12px] lg:text-[14px] font-bold text-[#8144FE]'>
+                  {quiz.isCompleted ? 100 : (quiz.progress || 0)}%
+                </h1>
               </div>
             </div>
           );
@@ -165,13 +371,21 @@ const Page = () => {
       </div>
 
       {selectedQuiz && (
-        <QuizModal quiz={selectedQuiz} onClose={handleQuizClose} />
+        <QuizModal
+          quiz={selectedQuiz}
+          onClose={handleQuizClose}
+          onProgressUpdate={handleProgressUpdate}
+        />
       )}
 
       {isAddModalOpen && (
-        <AddQuizModal 
-          setIsModalOpen={setIsAddModalOpen} 
-          onAddQuiz={handleAddQuiz} 
+        <AddQuizModal
+          setIsModalOpen={(val) => {
+            setIsAddModalOpen(val);
+            if (!val) setEditingQuiz(null);
+          }}
+          onAddQuiz={handleAddQuiz}
+          initialData={editingQuiz}
         />
       )}
     </div>
