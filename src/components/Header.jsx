@@ -6,13 +6,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import useMenuStore from '@/store/menuStore'
 import { supabase } from '@/lib/supabase'
+import { fetchCurrentUserRank } from '@/lib/leaderboard'
 
 const Header = () => {
     const { toggleMenu } = useMenuStore()
     const [diamonds, setDiamonds] = useState(0)
+    const [rank, setRank] = useState(null)
 
     useEffect(() => {
-        const fetchDiamonds = async () => {
+        const fetchHeaderData = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { data, error } = await supabase.from('profiles').select('diamonds').eq('id', user.id).single();
@@ -20,10 +22,12 @@ const Header = () => {
                     setDiamonds(data.diamonds || 0);
                 }
             }
+            const currentRank = await fetchCurrentUserRank()
+            setRank(currentRank)
         };
-        fetchDiamonds();
+        fetchHeaderData();
 
-        const handleUpdate = () => fetchDiamonds();
+        const handleUpdate = () => fetchHeaderData();
         window.addEventListener('diamondsUpdated', handleUpdate);
         return () => window.removeEventListener('diamondsUpdated', handleUpdate);
     }, []);
@@ -44,7 +48,7 @@ const Header = () => {
             <div className='flex gap-2.5 sm:gap-5 items-center  rounded px-3 py-1'>
                 <Link href={'/liderboard'} className='flex gap-2 items-center'>
                     <Image src={'/assets/rank.png'} alt='olmos' width={24} height={24} className='min-w-4 sm:min-w-5 min-h-4 sm:min-h-5 lg:min-w-6 lg:min-h-6' />
-                    <h2 className='text-[#CA1717] font-medium text-[14px] lg:text-[16px]'><span className='hidden sm:inline-block'>Reyting</span> {"0-o'rin"}</h2>
+                    <h2 className='text-[#CA1717] font-medium text-[14px] lg:text-[16px]'><span className='hidden sm:inline-block'>Reyting</span> {rank ? `${rank}-o'rin` : "0 o'rin"}</h2>
                 </Link>
 
                 <Link href={'/liderboard'} className='flex gap-2 items-center'>

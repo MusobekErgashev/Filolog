@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useRef, useState } from 'react'
+import { fetchCurrentUserRank } from '@/lib/leaderboard'
 
 /** Format seconds into "X soat Y daqiqa" or "Y daqiqa" */
 function formatTime(totalSecs) {
@@ -20,6 +21,7 @@ const StudentDashboard = () => {
     const [todaySecs, setTodaySecs] = useState(0)
     const [totalSecs, setTotalSecs] = useState(0)
     const [userId, setUserId] = useState(null)
+    const [rank, setRank] = useState(null)
 
     // ── Fetch initial data from Supabase ─────────────────────────────
     useEffect(() => {
@@ -45,6 +47,8 @@ const StudentDashboard = () => {
 
             setTodaySecs(isToday ? (profile.today_time_spent || 0) : 0)
             setTotalSecs(profile.time_spent || 0)
+            const currentRank = await fetchCurrentUserRank()
+            setRank(currentRank)
         }
         init()
     }, [])
@@ -63,6 +67,8 @@ const StudentDashboard = () => {
                 setTodaySecs(data.today_time_spent || 0)
                 setTotalSecs(data.time_spent || 0)
             }
+            const currentRank = await fetchCurrentUserRank()
+            setRank(currentRank)
         }, POLL_MS)
         return () => clearInterval(poll)
     }, [userId])
@@ -78,7 +84,7 @@ const StudentDashboard = () => {
         {
             id: 2,
             title: "Reytingim",
-            value: "— o'rin",
+            value: rank ? `${rank}-o'rin` : "— o'rin",
             icon: "/assets/yourRank.png",
             color: "bg-[#E641B4]",
         },

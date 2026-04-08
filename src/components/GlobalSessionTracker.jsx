@@ -81,7 +81,6 @@ export default function GlobalSessionTracker() {
         // Flush on page close/refresh
         const handleUnload = () => {
             if (!userIdRef.current || pendingRef.current === 0) return
-            navigator.sendBeacon?.('/api/noop') // keep connection alive
             // Best-effort sync flush (runs only if beacon budget allows)
             supabase.from('profiles').update({
                 today_time_spent: todaySecsRef.current,

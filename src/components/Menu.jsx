@@ -15,6 +15,7 @@ const Menu = () => {
     const { isOpen, closeMenu } = useMenuStore()
     const [user, setUser] = React.useState(null)
     const [userName, setUserName] = React.useState('Foydalanuvchi')
+    const [userRole, setUserRole] = React.useState('Talaba')
     const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false)
 
     React.useEffect(() => {
@@ -24,7 +25,7 @@ const Menu = () => {
             if (user) {
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('first_name, last_name')
+                    .select('first_name, last_name, role')
                     .eq('id', user.id)
                     .single()
                 if (profile) {
@@ -32,9 +33,11 @@ const Menu = () => {
                     const googleName = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.given_name || ''
                     const fallback = googleName || user.email || 'Foydalanuvchi'
                     setUserName(name || fallback)
+                    setUserRole(profile.role === 'admin' ? 'Admin' : 'Talaba')
                 } else {
                     const googleName = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.given_name || ''
                     setUserName(googleName || user.email || 'Foydalanuvchi')
+                    setUserRole('Talaba')
                 }
             }
         }
@@ -45,8 +48,6 @@ const Menu = () => {
         await supabase.auth.signOut()
         window.location.href = '/'
     }
-
-    const userRole = 'Talaba'
 
     return (
         <>

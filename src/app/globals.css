@@ -12,6 +12,7 @@ body {
   width: 100%;
   color: var(--text);
   font-family: "Poppins", sans-serif;
+  scroll-behavior: smooth;
 }
 
 .swiper {

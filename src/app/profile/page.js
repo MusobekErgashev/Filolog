@@ -44,6 +44,7 @@ const Page = () => {
   const [user, setUser] = useState({
     name: "Yuklanmoqda...",
     username: "@user",
+    role: "",
     bio: "Filologiya bo'yicha mutaxassis va kitobsevar.",
     joinDate: "...",
     joinDate: "...",
@@ -61,7 +62,7 @@ const Page = () => {
     async function getUserData() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (authUser) {
-        const { data: profile } = await supabase.from('profiles').select('tests_taken, first_name, last_name, avatar').eq('id', authUser.id).single();
+        const { data: profile } = await supabase.from('profiles').select('tests_taken, first_name, last_name, avatar, role').eq('id', authUser.id).single();
 
         const firstName = profile?.first_name || authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || ''
         const lastName = profile?.last_name || authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || ''
@@ -77,10 +78,12 @@ const Page = () => {
         setUser(prev => {
           const newStats = [...prev.stats];
           newStats[1].count = profile?.tests_taken || 0;
+          const roleLabel = profile?.role === 'admin' ? 'Admin' : 'Talaba'
           return {
             ...prev,
             name: displayName,
             username: (authUser.email || ""),
+            role: roleLabel,
             joinDate: new Date(authUser.created_at).toLocaleDateString('uz-UZ'),
             avatar: avatarUrl,
             stats: newStats
@@ -113,6 +116,15 @@ const Page = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left flex flex-col gap-1 text-slate-900">
+              <div className="mb-1">
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide ${
+                  user.role === 'Admin'
+                    ? 'bg-red-100 text-red-700 border border-red-200'
+                    : 'bg-indigo-100 text-indigo-700 border border-indigo-200'
+                }`}>
+                  {user.role || (loading ? 'Yuklanmoqda...' : 'Talaba')}
+                </span>
+              </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-[#0F172B]">{user.name}</h1>
               <p className="text-indigo-600 font-medium mb-3">{user.username}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 text-[#45556C] text-sm">

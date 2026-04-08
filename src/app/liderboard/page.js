@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { Trophy, Medal, Award } from 'lucide-react'
+import { fetchLeaderboardWithRanks } from '@/lib/leaderboard'
 
 /** Generate a deterministic gradient from a name string */
 function nameToGradient(name = '') {
@@ -40,19 +40,8 @@ const LeaderboardPage = () => {
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('id, first_name, last_name, diamonds, avatar')
-                .eq('role', 'user')
-                .order('diamonds', { ascending: false })
-
-            if (!error && data) {
-                setUsers(data.map((u, i) => ({
-                    ...u,
-                    name: [u.first_name, u.last_name].filter(Boolean).join(' ') || 'Anonim',
-                    rank: i + 1,
-                })))
-            }
+            const rankedUsers = await fetchLeaderboardWithRanks()
+            setUsers(rankedUsers)
             setLoading(false)
         }
         fetchLeaderboard()
