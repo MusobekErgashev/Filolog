@@ -40,7 +40,7 @@ export default function LandingPage() {
       </header>
       
       {/* 1. HERO SECTION */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20 px-4">
+      <section className="relative -mt-8 sm:mt-0 min-h-screen flex items-center justify-center px-4">
         {/* Murakkab fon effektlari */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/4 -left-20 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-indigo-600/10 rounded-full blur-[80px] md:blur-[120px] animate-pulse" />
@@ -74,7 +74,7 @@ export default function LandingPage() {
       </section>
 
       {/* 2. PLATFORMA IMKONIYATLARI (Xususiyatlar) */}
-      <section id="features" className="py-24 px-6 relative bg-white/1">
+      <section id="features" className="py-20 px-6 relative bg-white/1">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4 italic">Platformada nimalar bor?</h2>
@@ -133,7 +133,7 @@ export default function LandingPage() {
       </section>
 
       {/* 3. TEAM SECTION */}
-      <section id="team" className="py-32 px-6 relative overflow-hidden">
+      <section id="team" className="py-20 px-6 relative overflow-hidden">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-6xl font-black text-white mb-6 italic">{`Platforma Asoschilari`}</h2>
@@ -166,7 +166,7 @@ export default function LandingPage() {
             <div className="group relative bg-white/3 border border-white/10 p-8 md:p-10 rounded-[40px] hover:bg-white/5 transition-all">
               <div className="absolute -top-10 -right-6 text-7xl md:text-9xl font-black text-white/5 select-none italic">02</div>
               <div className="flex flex-col gap-6 relative z-10 md:text-left">
-                <div className="w-16 h-16 bg-purple-600/20 rounded-2xl flex items-center justify-center text-purple-400 border border-purple-500/20 mx-auto md:ml-0 md:mr-auto">
+                <div className="w-16 h-16 bg-purple-600/20 rounded-2xl flex items-center justify-center text-purple-400 border border-purple-500/20">
                   <GraduationCap size={32} />
                 </div>
                 <div className="md:ml-0 ml-auto">
@@ -187,9 +187,9 @@ export default function LandingPage() {
       </section>
 
       {/* 4. CTA SECTION */}
-      <section className="py-24 px-6">
+      <section className="py-16 px-6">
         <div className="container mx-auto">
-          <div className="bg-linear-to-r from-indigo-600 to-purple-600 rounded-[40px] p-8 md:p-16 text-center relative overflow-hidden group">
+          <div className="bg-linear-to-r from-indigo-600 to-purple-600 rounded-[20px] p-8 md:p-16 text-center relative overflow-hidden group">
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-10 pointer-events-none" />
             <div className="relative z-10">
               <h2 className="text-3xl md:text-5xl font-black text-white mb-6">{`Bilimingizni bugunoq sinab ko'ring!`}</h2>
