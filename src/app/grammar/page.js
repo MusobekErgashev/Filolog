@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Search, Plus, ChevronDown, ChevronUp, BookOpen, Trash2, Pencil, MoreHorizontal } from 'lucide-react'
+import { Search, Plus, ChevronDown, ChevronUp, BookOpen, Trash2, Pencil, MoreHorizontal, Bookmark } from 'lucide-react'
 import AddGrammarModal from '@/components/AddGrammarModal'
 import { supabase } from '@/lib/supabase'
 
@@ -15,11 +15,14 @@ const GrammarPage = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [userRole, setUserRole] = useState('user')
+    const [savedRules, setSavedRules] = useState([])
+    const [showSavedOnly, setShowSavedOnly] = useState(false)
 
     useEffect(() => {
-        const fetchRole = async () => {
+        const fetchRoleAndSaved = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
+                setSavedRules(user.user_metadata?.saved_grammar || [])
                 const { data } = await supabase
                     .from('profiles')
                     .select('role')
@@ -28,7 +31,7 @@ const GrammarPage = () => {
                 if (data?.role) setUserRole(data.role)
             }
         }
-        fetchRole()
+        fetchRoleAndSaved()
 
         const handleClickOutside = () => setOpenMenuId(null)
         window.addEventListener('click', handleClickOutside)
@@ -106,9 +109,30 @@ const GrammarPage = () => {
         setOpenRuleId(openRuleId === id ? null : id)
     }
 
-    const filteredRules = rules.filter(rule =>
-        rule.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const toggleSaveRule = async (id) => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const currentSaved = user.user_metadata?.saved_grammar || []
+        let newSaved
+        if (currentSaved.includes(id)) {
+            newSaved = currentSaved.filter(item => item !== id)
+        } else {
+            newSaved = [...currentSaved, id]
+        }
+
+        setSavedRules(newSaved)
+
+        await supabase.auth.updateUser({
+            data: { saved_grammar: newSaved }
+        })
+    }
+
+    const filteredRules = rules.filter(rule => {
+        const matchesSearch = rule.title.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSaved = showSavedOnly ? savedRules.includes(rule.id) : true;
+        return matchesSearch && matchesSaved;
+    })
 
     return (
         <div className='min-h-screen w-full animate-in fade-in duration-500'>
@@ -134,15 +158,24 @@ const GrammarPage = () => {
                 </div>
 
                 {/* Search Bar */}
-                <div className='relative group'>
-                    <Search className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8144FE] transition-colors' size={20} />
-                    <input
-                        type='text'
-                        placeholder='Qoidani nomi bo&apos;yicha izlang...'
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className='w-full bg-white pl-12 pr-4 py-3 rounded-2xl border border-gray-100 shadow-sm outline-none grammar-search-input transition-all text-gray-700 font-medium'
-                    />
+                <div className='flex items-center gap-3 w-full'>
+                    <div className='relative group flex-1'>
+                        <Search className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8144FE] transition-colors' size={20} />
+                        <input
+                            type='text'
+                            placeholder='Qoidani nomi bo&apos;yicha izlang...'
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className='w-full bg-white pl-12 pr-4 py-2 sm:py-3 rounded-md md:rounded-2xl border border-gray-100 shadow-sm outline-none grammar-search-input transition-all text-gray-700 font-medium'
+                        />
+                    </div>
+                    <button 
+                        onClick={() => setShowSavedOnly(!showSavedOnly)}
+                        className={`p-2 sm:p-3 rounded-md md:rounded-2xl border shadow transition-all cursor-pointer ${showSavedOnly ? 'bg-[#8144FE] border-[#8144FE] text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
+                        title="Saqlanganlar"
+                    >
+                        <Bookmark size={24} fill={showSavedOnly ? "white" : "none"} />
+                    </button>
                 </div>
 
                 {/* Rules List */}
@@ -228,9 +261,22 @@ const GrammarPage = () => {
                                 <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${openRuleId === rule.id ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                                     <div className='overflow-hidden'>
                                         <div className='pt-2 pb-4 px-6 border-t border-gray-50 bg-gray-50/20'>
+                                            <p className='font-semibold'>{rule.title}</p>
                                             <p className='text-gray-600 leading-relaxed whitespace-pre-wrap wrap-break-word w-full max-w-full text-[15px]'>
                                                 {rule.content}
                                             </p>
+                                            <div className="flex justify-end mt-2">
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        toggleSaveRule(rule.id);
+                                                    }}
+                                                    className={`flex items-center cursor-pointer gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors ${savedRules.includes(rule.id) ? 'bg-[#8144FE] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                                                >
+                                                    <Bookmark size={16} fill={savedRules.includes(rule.id) ? "white" : "none"} />
+                                                    {savedRules.includes(rule.id) ? "Saqlangan" : "Saqlash"}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

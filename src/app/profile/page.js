@@ -1,13 +1,45 @@
 'use client'
 
-import Image from 'next/image'
 import React, { useState } from 'react'
-import { Edit3, Settings, BookOpen, Download, Calendar, Heart, Brain, LogOut } from 'lucide-react'
+import { Edit3, Download, Calendar, Heart, Brain, LogOut } from 'lucide-react'
 import UpdateProfileModal from '@/components/UpdateProfileModal'
+import ConfirmModal from '@/components/ConfirmModal'
 import { supabase } from '@/lib/supabase'
+
+/** Telegram-style avatar: real photo or gradient + initials */
+function AvatarDisplay({ avatarUrl, name }) {
+    const gradients = [
+        ['#6C63FF', '#9b5de5'], ['#0097F6', '#00C4FF'],
+        ['#E641B4', '#FF6B9D'], ['#FF6B35', '#FFB347'],
+        ['#00C463', '#4ECDC4'], ['#43464B', '#747D8C'],
+    ]
+    let hash = 0
+    for (const c of (name || '')) hash = (hash * 31 + c.charCodeAt(0)) & 0xffff
+    const [c1, c2] = gradients[hash % gradients.length]
+    const initials = (name || '?').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase()
+
+    if (avatarUrl) {
+        return (
+            <img
+                src={avatarUrl}
+                alt="avatar"
+                className="w-full h-full object-cover"
+            />
+        )
+    }
+    return (
+        <div
+            className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl font-black text-white"
+            style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}
+        >
+            {initials}
+        </div>
+    )
+}
 
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
   const [user, setUser] = useState({
     name: "Yuklanmoqda...",
@@ -15,10 +47,10 @@ const Page = () => {
     bio: "Filologiya bo'yicha mutaxassis va kitobsevar.",
     joinDate: "...",
     joinDate: "...",
-    avatar: "/assets/book.webp",
+    avatar: "",
     stats: [
       { label: "Saqlangan kitoblar", count: 0, icon: <Heart size={18} className="text-pink-500" /> },
-      { label: "Yechilgan testlar", count: 12, icon: <Brain size={18} className="text-blue-500" /> },
+      { label: "Yechilgan testlar", count: 0, icon: <Brain size={18} className="text-blue-500" /> },
       { label: "Yuklangan kitoblar", count: 0, icon: <Download size={18} className="text-green-500" /> },
     ]
   })
@@ -29,20 +61,31 @@ const Page = () => {
     async function getUserData() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (authUser) {
-        const meta = authUser.user_metadata || {}
-        const fullName = meta.full_name || ""
-        const surname = meta.surname || ""
-        const displayDisplayName = (surname && !fullName.includes(surname))
-          ? `${fullName} ${surname}`.trim()
-          : fullName
+        const { data: profile } = await supabase.from('profiles').select('tests_taken, first_name, last_name, avatar').eq('id', authUser.id).single();
 
-        setUser(prev => ({
-          ...prev,
-          name: displayDisplayName,
-          username: (authUser.email || ""),
-          joinDate: new Date(authUser.created_at).toLocaleDateString('uz-UZ'),
-          avatar: authUser.user_metadata?.avatar_url || "/assets/book.webp"
-        }))
+        const firstName = profile?.first_name || authUser.user_metadata?.first_name || authUser.user_metadata?.given_name || ''
+        const lastName = profile?.last_name || authUser.user_metadata?.last_name || authUser.user_metadata?.family_name || ''
+        // For Google OAuth users, full name is in user_metadata.name or user_metadata.full_name
+        const googleFullName = authUser.user_metadata?.name || authUser.user_metadata?.full_name || ''
+        const displayName = [firstName, lastName].filter(Boolean).join(' ') || googleFullName || ''
+
+        // Only accept real URLs (http/https), reject local /assets/ paths saved by old code
+        const isRealUrl = (url) => url && url.startsWith('http')
+        const rawAvatar = profile?.avatar || authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || ''
+        const avatarUrl = isRealUrl(rawAvatar) ? rawAvatar : ''
+
+        setUser(prev => {
+          const newStats = [...prev.stats];
+          newStats[1].count = profile?.tests_taken || 0;
+          return {
+            ...prev,
+            name: displayName,
+            username: (authUser.email || ""),
+            joinDate: new Date(authUser.created_at).toLocaleDateString('uz-UZ'),
+            avatar: avatarUrl,
+            stats: newStats
+          }
+        })
       }
       setLoading(false)
     }
@@ -51,7 +94,7 @@ const Page = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    window.location.href = "/"
+    window.location.href = '/'
   }
 
   return (
@@ -65,13 +108,7 @@ const Page = () => {
           <div className="bg-white rounded-3xl bg-linear-to-r from-[#fcfaff] to-white shadow-xl shadow-blue-100/50 p-6 sm:p-8 flex flex-col md:flex-row items-center md:items-end gap-6 text-slate-900">
             <div className="relative group">
               <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl border-4 border-white shadow-xl overflow-hidden bg-white">
-                <Image
-                  src={user.avatar}
-                  alt='avatar'
-                  width={200}
-                  height={200}
-                  className='w-full h-full object-cover transition-transform group-hover:scale-105 duration-300'
-                />
+                <AvatarDisplay avatarUrl={user.avatar} name={user.name} />
               </div>
             </div>
 
@@ -93,8 +130,8 @@ const Page = () => {
                 <Edit3 size={18} /> Profilni tahrirlash
               </button>
               <button
-                onClick={handleLogout}
-                className="p-2.5 border-2 border-gray-200 cursor-pointer rounded-xl hover:bg-gray-50 transition-colors text-gray-700"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="p-2.5 border-2 border-gray-200 cursor-pointer rounded-xl hover:bg-red-50 hover:border-red-200 transition-colors text-gray-700 hover:text-red-500"
               >
                 <LogOut size={22} />
               </button>
@@ -120,6 +157,16 @@ const Page = () => {
       </div>
 
       {isModalOpen ? <UpdateProfileModal setIsModalOpen={setIsModalOpen} /> : ""}
+      {showLogoutConfirm && (
+        <ConfirmModal
+          title="Chiqmoqchimisiz?"
+          message="Tizimdan chiqish uchun tasdiqlang."
+          confirmText="Ha, chiqish"
+          cancelText="Bekor qilish"
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
+      )}
     </div>
   )
 }

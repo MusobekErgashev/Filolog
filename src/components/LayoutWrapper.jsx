@@ -2,6 +2,7 @@
 
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
+import GlobalSessionTracker from "@/components/GlobalSessionTracker";
 import { usePathname } from "next/navigation";
 
 export default function LayoutWrapper({ children }) {
@@ -20,6 +21,7 @@ export default function LayoutWrapper({ children }) {
         </main>
       ) : (
         <div className="h-screen w-full flex flex-col">
+          <GlobalSessionTracker />
           <Header />
           <div className="flex-1 relative overflow-hidden">
             <Menu />

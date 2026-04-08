@@ -7,14 +7,6 @@ export const Pages = [
         soon: false,
         id: 1,
     },
-    // {
-    //     pageName: "Video darsliklar",
-    //     iconActive: "/assets/lessonsActive.png",
-    //     icon: "/assets/lessons.png",
-    //     path: "/lessons",
-    //     soon: true,
-    //     id: 2,
-    // },
     {
         pageName: "Grammatika",
         iconActive: "/assets/grammarActive.png",
@@ -32,12 +24,28 @@ export const Pages = [
         id: 3,
     },
     {
+        pageName: "Peshqadamlar",
+        iconActive: "/assets/liderboardActive.png",
+        icon: "/assets/liderboard.png",
+        path: "/liderboard",
+        soon: false,
+        id: 4,
+    },
+    {
+        pageName: "Video darsliklar",
+        iconActive: "/assets/lessonsActive.png",
+        icon: "/assets/lessons.png",
+        path: "",
+        soon: true,
+        id: 5,
+    },
+    {
         pageName: "Vazifalar",
         iconActive: "/assets/homeworkActive.png",
         icon: "/assets/homework.png",
         path: "",
         soon: true,
-        id: 4,
+        id: 6,
     },
     {
         pageName: "Kutubxona",
@@ -45,15 +53,7 @@ export const Pages = [
         icon: "/assets/library.png",
         path: "",
         soon: true,
-        id: 5,
-    },
-    {
-        pageName: "Peshqadamlar",
-        iconActive: "/assets/liderboardActive.png",
-        icon: "/assets/liderboard.png",
-        path: "",
-        soon: true,
-        id: 6,
+        id: 7,
     },
     {
         pageName: "Premium obuna",
@@ -61,7 +61,7 @@ export const Pages = [
         icon: "/assets/subscription.png",
         path: "",
         soon: true,
-        id: 7,
+        id: 8,
     },
     {
         pageName: "AI Yordamchi",
@@ -69,6 +69,6 @@ export const Pages = [
         icon: "/assets/aiTutor.png",
         path: "",
         soon: true,
-        id: 8,
+        id: 9,
     },
 ]

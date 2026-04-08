@@ -14,6 +14,8 @@ export default function Dashboard() {
       <Carusel />
 
       <StudentDashboard />
+
+      <p className="text-[14px] text-center mt-3 lg:text-[18px] text-gray-400">Yangiliklarda qolib ketmaslik uchun bizni <Link href="https://t.me/FilologOnlayn" target="_blank" className="text-[#8144FE] font-semibold">Telegram</Link> kanalimizga obuna bo'ling!</p>
     </div>
   );
 }

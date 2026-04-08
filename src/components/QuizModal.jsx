@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-const QuizModal = ({ quiz, onClose, onProgressUpdate }) => {
+const QuizModal = ({ quiz, onClose, onProgressUpdate, isAlreadyCompleted }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState(
     Array(quiz.questions.length).fill(null)
@@ -234,17 +234,26 @@ const QuizModal = ({ quiz, onClose, onProgressUpdate }) => {
           )}
 
           {isLastQuestion ? (
-            <button
-              onClick={handleFinish}
-              disabled={selectedAnswers.includes(null)}
-              className={`flex-1 py-3 font-semibold rounded-xl transition-all cursor-pointer active:scale-[0.98]
-                ${selectedAnswers.includes(null)
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white hover:opacity-90"
-                }`}
-            >
-              Tugatish
-            </button>
+            isAlreadyCompleted ? (
+              <button
+                disabled
+                className="flex-1 py-3 font-semibold rounded-xl transition-all cursor-not-allowed bg-green-100 text-green-600 border border-green-200"
+              >
+                Siz bu testni yechib bo&apos;lgansiz ✅
+              </button>
+            ) : (
+              <button
+                onClick={handleFinish}
+                disabled={selectedAnswers.includes(null)}
+                className={`flex-1 py-3 font-semibold rounded-xl transition-all cursor-pointer active:scale-[0.98]
+                  ${selectedAnswers.includes(null)
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white hover:opacity-90"
+                  }`}
+              >
+                Tugatish
+              </button>
+            )
           ) : (
             <button
               onClick={handleNext}

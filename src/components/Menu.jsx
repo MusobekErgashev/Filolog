@@ -6,27 +6,60 @@ import { Pages } from '@/app/pages-export'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import useMenuStore from '@/store/menuStore'
-import { X } from 'lucide-react'
+import { X, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import ConfirmModal from '@/components/ConfirmModal'
 
 const Menu = () => {
     const pathname = usePathname()
     const { isOpen, closeMenu } = useMenuStore()
     const [user, setUser] = React.useState(null)
+    const [userName, setUserName] = React.useState('Foydalanuvchi')
+    const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false)
 
     React.useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             setUser(user)
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('first_name, last_name')
+                    .eq('id', user.id)
+                    .single()
+                if (profile) {
+                    const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
+                    const googleName = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.given_name || ''
+                    const fallback = googleName || user.email || 'Foydalanuvchi'
+                    setUserName(name || fallback)
+                } else {
+                    const googleName = user.user_metadata?.name || user.user_metadata?.full_name || user.user_metadata?.given_name || ''
+                    setUserName(googleName || user.email || 'Foydalanuvchi')
+                }
+            }
         }
         fetchUser()
     }, [])
 
-    const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || 'Foydalanuvchi'
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        window.location.href = '/'
+    }
+
     const userRole = 'Talaba'
 
     return (
         <>
+            {showLogoutConfirm && (
+                <ConfirmModal
+                    title="Chiqmoqchimisiz?"
+                    message="Tizimdan chiqish uchun tasdiqlang."
+                    confirmText="Ha, chiqish"
+                    cancelText="Bekor qilish"
+                    onConfirm={handleLogout}
+                    onCancel={() => setShowLogoutConfirm(false)}
+                />
+            )}
             {/* Backdrop */}
             <div 
                 className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
@@ -58,7 +91,7 @@ const Menu = () => {
                             return (
                                 <Link
                                     onClick={closeMenu}
-                                    className={`py-3 px-4 rounded-xl text-[15px] font-medium flex items-center gap-3 transition-all ${isActive
+                                    className={`py-3 px-3 sm:px-4 rounded-xl text-[15px] font-medium flex items-center gap-2 sm:gap-3 transition-all ${isActive
                                         ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100'
                                         : 'text-slate-600 hover:bg-slate-100'
                                         }`}
@@ -76,7 +109,7 @@ const Menu = () => {
                                     <div className="flex items-center justify-between flex-1">
                                         <span>{item.pageName}</span>
                                         {item.soon && (
-                                            <span className='px-2.5 py-0.5 bg-linear-to-r from-purple-500 to-indigo-500 text-white rounded-full text-[11px] font-bold uppercase tracking-wide shadow-sm shadow-purple-200 animate-pulse'>
+                                            <span className='px-2.5 py-0.5 bg-linear-to-r from-purple-500 to-indigo-500 text-white rounded-full text-[8px] md:text-[11px] font-bold uppercase tracking-wide shadow-sm shadow-purple-200 animate-pulse'>
                                                 tez orada
                                             </span>
                                         )}
@@ -89,23 +122,30 @@ const Menu = () => {
 
                 {/* Profile Section inside Sidebar */}
                 <div className='p-4 border-t border-[#DFE5ED] bg-slate-50'>
-                    <Link 
-                        href={'/profile'} 
-                        onClick={closeMenu}
-                        className={`p-3 w-full flex items-center rounded-xl transition-all gap-4 ${pathname === "/profile" ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'hover:bg-slate-200 bg-white border border-slate-100'}`}
-                    >
-                        <div className={`w-11 h-11 flex justify-center items-center rounded-full overflow-hidden border-2 ${pathname === "/profile" ? 'border-white/30 bg-white/10' : 'border-slate-100 bg-slate-50'}`}>
-                             {
-                                pathname === "/profile" ? (
+                    <div className={`p-3 w-full flex items-center rounded-xl transition-all gap-4 ${pathname === "/profile" ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-white border border-slate-100'}`}>
+                        <Link 
+                            href={'/profile'} 
+                            onClick={closeMenu}
+                            className="flex items-center gap-4 flex-1 min-w-0"
+                        >
+                            <div className={`w-11 h-11 flex justify-center items-center rounded-full overflow-hidden border-2 ${pathname === "/profile" ? 'border-white/30 bg-white/10' : 'border-slate-100 bg-slate-50'} shrink-0`}>
+                                {pathname === "/profile" ? (
                                     <Image src={'/assets/profileActive.png'} alt='profile' width={28} height={28} className='w-7 h-7' />
-                                ) : (<Image src={'/assets/profile.png'} alt='profile' width={20} height={20} className='w-5 h-5' />)
-                            }
-                        </div>
-                        <div className='flex flex-col'>
-                            <h3 className='text-[15px] font-semibold leading-tight'>{userName}</h3>
-                            <p className={`text-[12px] ${pathname === "/profile" ? 'text-indigo-100' : 'text-slate-500'}`}>{userRole}</p>
-                        </div>
-                    </Link>
+                                ) : (<Image src={'/assets/profile.png'} alt='profile' width={20} height={20} className='w-5 h-5' />)}
+                            </div>
+                            <div className='flex flex-col min-w-0'>
+                                <h3 className='text-[15px] font-semibold leading-tight truncate'>{userName}</h3>
+                                <p className={`text-[12px] ${pathname === "/profile" ? 'text-indigo-100' : 'text-slate-500'}`}>{userRole}</p>
+                            </div>
+                        </Link>
+                        <button
+                            onClick={() => setShowLogoutConfirm(true)}
+                            className={`p-2 rounded-xl cursor-pointer transition-colors shrink-0 ${pathname === "/profile" ? 'hover:bg-white/20 text-white' : 'hover:bg-red-50 text-red-400'}`}
+                            title="Chiqish"
+                        >
+                            <LogOut size={18} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </>

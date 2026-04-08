@@ -27,7 +27,7 @@ function reducer(state, action) {
 const Register = ({ onStepChange }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState("")
+  const [errors, setErrors] = useState({})
   const [step, _setStep] = useState(1) // 1: Form, 2: OTP
 
   const setStep = (newStep) => {
@@ -38,18 +38,18 @@ const Register = ({ onStepChange }) => {
   async function handleSignUp(e) {
     e.preventDefault()
     setLoading(true)
-    setErrorMsg("")
+    setErrors({})
 
     // Password validation: 6+ chars and 1+ digit
     const passwordRegex = /^(?=.*[0-9]).{6,}$/
     if (!passwordRegex.test(state.password)) {
-      setErrorMsg("Parol kamida 6 ta belgidan iborat bo'lishi va kamida 1 ta raqam qatnashishi kerak!")
+      setErrors({ password: "Parol kamida 6 ta belgidan iborat bo'lishi va kamida 1 ta raqam qatnashishi kerak!" })
       setLoading(false)
       return
     }
 
     if (state.password !== state.confirmPassword) {
-      setErrorMsg("Parollar mos kelmadi!")
+      setErrors({ confirmPassword: "Parollar mos kelmadi!" })
       setLoading(false)
       return
     }
@@ -60,20 +60,28 @@ const Register = ({ onStepChange }) => {
         password: state.password,
         options: {
           data: {
-            full_name: state.name,
-            surname: state.surName,
+            first_name: state.name,
+            last_name: state.surName,
           },
           emailRedirectTo: window.location.origin + '/dashboard'
         }
       })
 
-      if (error) throw error
+      if (error) {
+        if (error.message.includes("already registered") || error.status === 422) {
+          setErrors({ email: "Bu elektron pochta allaqachon ro'yxatdan o'tgan. Iltimos, tizimga kiring." })
+        } else {
+          setErrors({ general: error.message })
+        }
+        setLoading(false)
+        return
+      }
 
       if (data.user) {
         setStep(2)
       }
     } catch (err) {
-      setErrorMsg(err.message)
+      setErrors({ general: err.message })
     } finally {
       setLoading(false)
     }
@@ -82,7 +90,7 @@ const Register = ({ onStepChange }) => {
   async function handleVerifyOtp(e) {
     e.preventDefault()
     setLoading(true)
-    setErrorMsg("")
+    setErrors({})
 
     try {
       const { data, error } = await supabase.auth.verifyOtp({
@@ -91,13 +99,17 @@ const Register = ({ onStepChange }) => {
         type: 'signup'
       })
 
-      if (error) throw error
+      if (error) {
+        setErrors({ otp: "Tasdiqlash kodi noto'g'ri. Iltimos tekshirib qayta kiriting." })
+        setLoading(false)
+        return
+      }
 
       if (data.session) {
         window.location.href = '/dashboard'
       }
     } catch (err) {
-      setErrorMsg(err.message)
+      setErrors({ general: err.message })
     } finally {
       setLoading(false)
     }
@@ -114,7 +126,7 @@ const Register = ({ onStepChange }) => {
       })
       if (error) throw error
     } catch (err) {
-      setErrorMsg(err.message)
+      setErrors({ general: err.message })
       setLoading(false)
     }
   }
@@ -154,12 +166,13 @@ const Register = ({ onStepChange }) => {
                 onChange={e => dispatch({ type: 'SET_FIELD', field: 'otp', value: e.target.value.replace(/\D/g, '') })}
               />
             </div>
+            {errors.otp && <p className='text-red-500 text-xs font-semibold ml-1'>{errors.otp}</p>}
           </div>
 
-          {errorMsg && (
+          {errors.general && (
             <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
               <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
-              {errorMsg}
+              {errors.general}
             </p>
           )}
 
@@ -241,6 +254,7 @@ const Register = ({ onStepChange }) => {
               onChange={e => dispatch({ type: 'SET_FIELD', field: 'email', value: e.target.value })}
             />
           </div>
+          {errors.email && <p className='text-red-500 text-xs font-semibold ml-1'>{errors.email}</p>}
         </div>
 
         <div className='flex gap-4'>
@@ -252,7 +266,6 @@ const Register = ({ onStepChange }) => {
               </div>
               <input
                 required
-                minLength={6}
                 disabled={loading}
                 className={inputClasses}
                 id="reg-password"
@@ -262,6 +275,7 @@ const Register = ({ onStepChange }) => {
                 onChange={e => dispatch({ type: 'SET_FIELD', field: 'password', value: e.target.value })}
               />
             </div>
+            {errors.password && <p className='text-red-500 text-xs font-semibold ml-1'>{errors.password}</p>}
           </div>
           <div className="flex-1 flex flex-col gap-1.5">
             <label className={labelClasses} htmlFor="confirmpassword">Tasdiqlash</label>
@@ -280,13 +294,14 @@ const Register = ({ onStepChange }) => {
                 onChange={e => dispatch({ type: 'SET_FIELD', field: 'confirmPassword', value: e.target.value })}
               />
             </div>
+            {errors.confirmPassword && <p className='text-red-500 text-xs font-semibold ml-1'>{errors.confirmPassword}</p>}
           </div>
         </div>
 
-        {errorMsg && (
+        {errors.general && (
           <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
             <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
-            {errorMsg}
+            {errors.general}
           </p>
         )}
 

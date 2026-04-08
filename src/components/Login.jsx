@@ -8,12 +8,19 @@ const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState("")
+  const [errors, setErrors] = useState({})
+
+  // Forgot Password States
+  const [forgotMode, setForgotMode] = useState(false)
+  const [resetStep, setResetStep] = useState(1) // 1: Email, 2: OTP, 3: New Pass
+  const [resetEmail, setResetEmail] = useState("")
+  const [otpCode, setOtpCode] = useState("")
+  const [newPassword, setNewPassword] = useState("")
 
   async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
-    setErrorMsg("")
+    setErrors({})
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -21,13 +28,82 @@ const Login = () => {
         password
       })
 
-      if (error) throw error
+      if (error) {
+        if (error.message.includes("Invalid login credentials") || error.status === 400) {
+            setErrors({ general: "Pochta yoki parol xato kiritildi. Iltimos tekshiring." })
+        } else {
+            setErrors({ general: error.message })
+        }
+        setLoading(false)
+        return
+      }
 
       if (data.user) {
         window.location.href = '/dashboard'
       }
     } catch (err) {
-      setErrorMsg(err.message)
+      setErrors({ general: err.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSendResetEmail(e) {
+    e.preventDefault()
+    setLoading(true)
+    setErrors({})
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail)
+      if (error) throw error
+      setResetStep(2)
+    } catch (err) {
+      setErrors({ general: err.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleVerifyRecoveryOtp(e) {
+    e.preventDefault()
+    setLoading(true)
+    setErrors({})
+    try {
+      const { error } = await supabase.auth.verifyOtp({ 
+        email: resetEmail, 
+        token: otpCode, 
+        type: 'recovery' 
+      })
+      if (error) {
+        setErrors({ otp: "Tasdiqlash kodi xato kiritildi." })
+        setLoading(false)
+        return
+      }
+      setResetStep(3)
+    } catch (err) {
+      setErrors({ general: err.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleUpdatePassword(e) {
+    e.preventDefault()
+    setLoading(true)
+    setErrors({})
+
+    const passwordRegex = /^(?=.*[0-9]).{6,}$/
+    if (!passwordRegex.test(newPassword)) {
+      setErrors({ password: "Parol kamida 6 ta belgidan iborat bo'lishi va kamida 1 ta raqam qatnashishi kerak!" })
+      setLoading(false)
+      return
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      window.location.href = '/dashboard'
+    } catch (err) {
+      setErrors({ general: err.message })
     } finally {
       setLoading(false)
     }
@@ -44,13 +120,160 @@ const Login = () => {
       })
       if (error) throw error
     } catch (err) {
-      setErrorMsg(err.message)
+      setErrors({ general: err.message })
       setLoading(false)
     }
   }
 
   const inputClasses = "w-full bg-gray-50 outline-none px-11 py-3.5 text-[14px] text-[#0F172B] rounded-2xl border border-gray-200 focus:border-[#006EDD] focus:ring-4 focus:ring-[#006fdd10] transition-all duration-300 placeholder:text-gray-400 disabled:opacity-50"
   const labelClasses = "text-sm font-semibold text-gray-700 ml-1"
+
+  if (forgotMode) {
+    return (
+      <div className='flex flex-col h-full anim-fade-in py-2'>
+        <div className='text-center space-y-2 mb-6'>
+          <h2 className='text-2xl font-bold text-gray-900'>
+            {resetStep === 1 && "Parolni tiklash"}
+            {resetStep === 2 && "Emailni tasdiqlang"}
+            {resetStep === 3 && "Yangi parol"}
+          </h2>
+          <p className='text-gray-500 text-sm'>
+            {resetStep === 1 && "Pochta manzilingizni kiriting, biz sizga tiklash kodini yuboramiz."}
+            {resetStep === 2 && `${resetEmail} manziliga kelgan 6 xonali kodni kiriting.`}
+            {resetStep === 3 && "Yangi xavfsiz parolingizni o'rnating."}
+          </p>
+        </div>
+
+        {resetStep === 1 && (
+          <form onSubmit={handleSendResetEmail} className='flex flex-col gap-6'>
+            <div className="flex flex-col gap-1.5">
+              <label className={labelClasses} htmlFor="reset-email">Email manzili</label>
+              <div className='relative'>
+                <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>
+                  <Mail size={18} />
+                </div>
+                <input
+                  required
+                  disabled={loading}
+                  className={inputClasses}
+                  id="reset-email"
+                  type="email"
+                  placeholder="example@mail.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            {errors.general && (
+              <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
+                <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
+                {errors.general}
+              </p>
+            )}
+
+            <button 
+              disabled={loading}
+              className='w-full py-4 rounded-2xl cursor-pointer text-white font-bold text-[16px] transition-all duration-300 bg-[#006EDD] hover:bg-[#0052a3] shadow-lg shadow-[#006fdd20] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed'
+            >
+              {loading ? <Loader2 className='animate-spin' size={20} /> : "Kodni yuborish"}
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setForgotMode(false); setErrors({}); }}
+              className='text-sm font-semibold text-gray-500 hover:text-[#006EDD] transition-colors mt-2 mx-auto cursor-pointer'
+            >
+              Ortga qaytish
+            </button>
+          </form>
+        )}
+
+        {resetStep === 2 && (
+          <form onSubmit={handleVerifyRecoveryOtp} className='flex flex-col gap-6'>
+            <div className="flex flex-col gap-1.5">
+              <label className={labelClasses} htmlFor="otp-code">Tasdiqlash kodi</label>
+              <div className='relative'>
+                <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>
+                  <Lock size={18} />
+                </div>
+                <input
+                  required
+                  disabled={loading}
+                  className={inputClasses}
+                  id="otp-code"
+                  type="text"
+                  maxLength="6"
+                  placeholder="123456"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+              {errors.otp && <p className='text-red-500 text-xs font-semibold ml-1'>{errors.otp}</p>}
+            </div>
+
+            {errors.general && (
+            <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
+              <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
+              {errors.general}
+            </p>
+            )}
+
+            <button 
+              disabled={loading}
+              className='w-full py-4 rounded-2xl cursor-pointer text-white font-bold text-[16px] transition-all duration-300 bg-[#006EDD] hover:bg-[#0052a3] shadow-lg shadow-[#006fdd20] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed'
+            >
+              {loading ? <Loader2 className='animate-spin' size={20} /> : "Tasdiqlash"}
+            </button>
+            <button 
+              type="button"
+              onClick={() => setResetStep(1)}
+              className='text-sm font-semibold text-gray-500 hover:text-[#006EDD] transition-colors mt-2 mx-auto cursor-pointer'
+            >
+              Boshqa pochtaga jo&apos;natish
+            </button>
+          </form>
+        )}
+
+        {resetStep === 3 && (
+          <form onSubmit={handleUpdatePassword} className='flex flex-col gap-6'>
+            <div className="flex flex-col gap-1.5">
+              <label className={labelClasses} htmlFor="new-password">Yangi parol</label>
+              <div className='relative'>
+                <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>
+                  <Lock size={18} />
+                </div>
+                <input
+                  required
+                  disabled={loading}
+                  className={inputClasses}
+                  id="new-password"
+                  type="password"
+                  placeholder="Yangi parol (6+ harf va raqam)"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </div>
+              {errors.password && <p className='text-red-500 text-xs font-semibold ml-1'>{errors.password}</p>}
+            </div>
+
+            {errors.general && (
+            <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
+              <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
+              {errors.general}
+            </p>
+            )}
+
+            <button 
+              disabled={loading}
+              className='w-full py-4 rounded-2xl cursor-pointer text-white font-bold text-[16px] transition-all duration-300 bg-[#006EDD] hover:bg-[#0052a3] shadow-lg shadow-[#006fdd20] active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed'
+            >
+              {loading ? <Loader2 className='animate-spin' size={20} /> : "Parolni saqlash va Kirish"}
+            </button>
+          </form>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className='flex flex-col h-full anim-fade-in py-2'>
@@ -77,6 +300,13 @@ const Login = () => {
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between items-center ml-1">
             <label className={labelClasses} htmlFor="password">Parol</label>
+            <button 
+              type="button" 
+              onClick={() => { setForgotMode(true); setErrors({}); }} 
+              className="text-xs text-[#006EDD] font-medium hover:underline cursor-pointer"
+            >
+              Parolni unutdingizmi?
+            </button>
           </div>
           <div className='relative'>
             <div className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400'>
@@ -95,10 +325,10 @@ const Login = () => {
           </div>
         </div>
 
-        {errorMsg && (
+        {errors.general && (
           <p className='text-red-500 text-xs font-medium bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2'>
             <span className='w-1.5 h-1.5 bg-red-500 rounded-full shrink-0'></span>
-            {errorMsg}
+            {errors.general}
           </p>
         )}
 

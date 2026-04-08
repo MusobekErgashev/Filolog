@@ -4,7 +4,8 @@ import Image from "next/image";
 import React, { useState } from "react";
 import QuizModal from "@/components/QuizModal";
 import AddQuizModal from "@/components/AddQuizModal";
-import { Pencil, Trash2 } from "lucide-react";
+import ConfirmModal from "@/components/ConfirmModal";
+import { Pencil, Trash2, Gem } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const Page = () => {
@@ -14,16 +15,20 @@ const Page = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState('user');
+  const [completedQuizzesList, setCompletedQuizzesList] = useState([]);
+  const [congratsInfo, setCongratsInfo] = useState(null); // { diamonds: number }
+  const [confirmDelete, setConfirmDelete] = useState(null); // quiz id to delete
 
   React.useEffect(() => {
-    const fetchRole = async () => {
+    const fetchRoleAndMetadata = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        setCompletedQuizzesList(user.user_metadata?.completed_quizzes || []);
         const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
         if (data?.role) setUserRole(data.role);
       }
     };
-    fetchRole();
+    fetchRoleAndMetadata();
   }, []);
 
   // Load quizzes from Supabase
@@ -100,7 +105,7 @@ const Page = () => {
           progress: data.progress || 0,
           questions: data.question || []
         };
-        
+
         setAllQuizzes(prev => prev.map(q => q.id === editingQuiz.id ? mappedQuiz : q));
       } else {
         // Also set initial values for new quiz completion status
@@ -141,22 +146,7 @@ const Page = () => {
 
   const handleDeleteQuiz = async (e, id) => {
     e.stopPropagation();
-    if (!confirm("Haqiqatan ham bu testni o'chirmoqchimisiz?")) return;
-
-    try {
-      const { error } = await supabase.from('quizzes').delete().eq('id', id);
-      
-      if (error) {
-        console.error("Error deleting quiz:", error);
-        alert("O'chirishda xatolik yuz berdi");
-        return;
-      }
-      
-      setAllQuizzes(prev => prev.filter(q => q.id !== id));
-    } catch (error) {
-      console.error("Error deleting quiz:", error);
-      alert("Serverga ulanib bo'lmadi");
-    }
+    setConfirmDelete(id);
   };
 
   const handleEditClick = (e, quiz) => {
@@ -192,7 +182,7 @@ const Page = () => {
           .from('quizzes')
           .update({ progress })
           .eq('id', selectedQuiz.id);
-          
+
         if (error) console.error("Error updating progress:", error);
         else setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, progress } : q));
       } catch (error) {
@@ -201,20 +191,54 @@ const Page = () => {
     }
   };
 
-  const handleQuizClose = async (results) => {
+  const handleQuizClose = (results) => {
     if (selectedQuiz && results) {
       if (results.percentage === 100) {
-        try {
-          const { error } = await supabase
-            .from('quizzes')
-            .update({ isCompleted: true, progress: 100 })
-            .eq('id', selectedQuiz.id);
-            
-          if (error) console.error("Error marking completion:", error);
-          else setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, isCompleted: true, progress: 100 } : q));
-        } catch (error) {
-          console.error("Error marking completion:", error);
-        }
+        // Run DB operations in background so modal closes instantly
+        (async () => {
+          try {
+            if (userRole === 'user') {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                const completedQuizzes = user.user_metadata?.completed_quizzes || [];
+                const isFirstTime = !completedQuizzes.includes(selectedQuiz.id);
+
+                if (isFirstTime) {
+                  const earnedDiamonds = selectedQuiz.diamonds || 10;
+                  await supabase.auth.updateUser({
+                    data: { completed_quizzes: [...completedQuizzes, selectedQuiz.id] }
+                  });
+                  setCompletedQuizzesList(prev => [...prev, selectedQuiz.id]);
+
+                  const { data: profile } = await supabase.from('profiles').select('diamonds, tests_taken').eq('id', user.id).single();
+                  const currentDiamonds = profile?.diamonds || 0;
+                  const currentTestsTaken = profile?.tests_taken || 0;
+                  const newDiamonds = currentDiamonds + earnedDiamonds;
+
+                  await supabase.from('profiles').update({
+                    diamonds: newDiamonds,
+                    tests_taken: currentTestsTaken + 1
+                  }).eq('id', user.id);
+
+                  window.dispatchEvent(new Event('diamondsUpdated'));
+                  setCongratsInfo({ diamonds: earnedDiamonds });
+                }
+              }
+            }
+
+            const { error } = await supabase
+              .from('quizzes')
+              .update({ isCompleted: true, progress: 100 })
+              .eq('id', selectedQuiz.id);
+
+            if (error) console.error("Error marking completion:", error);
+          } catch (error) {
+            console.error("Background quiz update error:", error);
+          }
+        })();
+
+        // Instant UI update
+        setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, isCompleted: true, progress: 100 } : q));
       } else {
         const newProgress = results.percentage === 0 ? selectedQuiz.progress : selectedQuiz.progress;
         setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, progress: newProgress } : q));
@@ -225,6 +249,49 @@ const Page = () => {
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Congratulations Modal */}
+      {congratsInfo && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-5 items-center text-center animate-in zoom-in duration-200">
+            <div className="text-6xl animate-bounce">🎉</div>
+            <div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Tabriklaymiz!</h3>
+              <p className="text-gray-500 text-sm">Siz bu testni 100% to&apos;g&apos;ri yechdingiz!</p>
+            </div>
+            <div className="flex items-center gap-3 bg-indigo-50 px-6 py-4 rounded-2xl">
+              <span className="text-3xl">💎</span>
+              <div className="text-left">
+                <p className="text-xs text-gray-500 font-medium">Sizga qo&apos;shildi</p>
+                <p className="text-3xl font-black text-indigo-600">+{congratsInfo.diamonds}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setCongratsInfo(null)}
+              className="w-full py-3.5 bg-linear-to-r from-[#8144FE] to-[#5B2CC7] text-white font-black text-lg rounded-2xl hover:opacity-90 transition-all cursor-pointer active:scale-[0.98] shadow-lg shadow-indigo-200"
+            >
+              Yaxshi! 🚀
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirm Modal */}
+      {confirmDelete && (
+        <ConfirmModal
+          title="Testni o'chirmoqchimisiz?"
+          message="Bu amalni qaytarib bo'lmaydi."
+          confirmText="Ha, o'chirish"
+          cancelText="Bekor qilish"
+          onConfirm={async () => {
+            try {
+              const { error } = await supabase.from('quizzes').delete().eq('id', confirmDelete);
+              if (!error) setAllQuizzes(prev => prev.filter(q => q.id !== confirmDelete));
+            } catch (e) { console.error(e); }
+            setConfirmDelete(null);
+          }}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
       <div>
         <h1 className="text-[26px] sm:text-[30px] lg:text-[34px] font-semibold leading-7 sm:leading-9 lg:leading-11">
           {"Testlar bo'limi"}
@@ -239,7 +306,7 @@ const Page = () => {
           return (
             <div
               key={item.id}
-              className="flex justify-between w-full bg-white p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200"
+              className="flex justify-between w-full bg-white p-4 sm:p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200"
             >
               <div className="flex flex-col justify-between">
                 <h2 className="text-[16px] lg:text-[20px] font-medium">
@@ -288,7 +355,7 @@ const Page = () => {
             <div
               key={quiz.id}
               onClick={() => handleQuizClick(quiz)}
-              className="bg-white flex flex-col cursor-pointer group hover:bg-gray-50 border-2 border-white gap-2 p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 relative overflow-hidden"
+              className="bg-white flex flex-col cursor-pointer group hover:bg-gray-50 border-2 border-white gap-1.5 sm:gap-2 p-4 sm:p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 relative overflow-hidden"
             >
               <div className="flex gap-2 items-center justify-between">
                 <div className="flex gap-2 items-center">
@@ -375,6 +442,7 @@ const Page = () => {
           quiz={selectedQuiz}
           onClose={handleQuizClose}
           onProgressUpdate={handleProgressUpdate}
+          isAlreadyCompleted={completedQuizzesList.includes(selectedQuiz.id)}
         />
       )}
 
