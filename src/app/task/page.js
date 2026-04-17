@@ -24,13 +24,13 @@ const TASKS = [
 
 const Page = () => {
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       {/* Sarlavha qismi */}
       <div className="relative border-l-4 border-[#8144FE] pl-6 py-2">
         <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
           Vazifalar <span className="text-[#8144FE]">{`bo'limi`}</span>
         </h1>
-        <p className="mt-1 text-slate-500 text-lg max-w-2xl font-medium">
+        <p className="mt-1 text-slate-500 text-md max-w-2xl font-medium">
           {`Bilim darajangizni oshirish uchun maxsus tayyorlangan mashqlar to'plami.
           O'zingizga ma'qul yo'nalishni tanlang.`}
         </p>

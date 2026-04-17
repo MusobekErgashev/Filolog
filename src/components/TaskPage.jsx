@@ -380,8 +380,8 @@ const TaskPage = () => {
               <div className="space-y-4">
                 {filteredTasks.length === 0 ? (
                   <EmptyState
-                    message={activeTab === 'checked' ? "Tekshirilgan esseler yo&apos;q" : "Hozircha vazifalar yo&apos;q"}
-                    sub={activeTab === 'checked' ? "Esse topshirgach bu yerda ko&apos;rinadi" : "Admin tez orada vazifa qo&apos;shadi"}
+                    message={activeTab === 'checked' ? "Tekshirilgan esselar yo'q" : "Hozircha vazifalar yo'q"}
+                    sub={activeTab === 'checked' ? "Esse topshirgach bu yerda ko'rinadi" : "Admin tez orada vazifa qo'shadi"}
                   />
                 ) : (
                   filteredTasks.map((task, index) => {

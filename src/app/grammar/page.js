@@ -148,7 +148,7 @@ const GrammarPage = () => {
                         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                             Ona tili <span className="text-[#8144FE]">Qoidalari</span>
                         </h1>
-                        <p className="mt-1 text-slate-500 text-lg max-w-2xl font-medium">
+                        <p className="mt-1 text-slate-500 text-md max-w-2xl font-medium">
                             Grammatika va fonetika qoidalarini shu yerdan topishingiz mumkin!
                         </p>
                     </div>

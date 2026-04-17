@@ -249,12 +249,12 @@ const Page = () => {
             <div className="text-6xl animate-bounce">🎉</div>
             <div>
               <h3 className="text-2xl font-black text-gray-900 mb-2">Tabriklaymiz!</h3>
-              <p className="text-gray-500 text-sm">Siz bu testni 100% to&apos;g&apos;ri yechdingiz!</p>
+              <p className="text-gray-500 text-sm">{`Siz bu testni 100% to'g'ri yechdingiz!`}</p>
             </div>
             <div className="flex items-center gap-3 bg-indigo-50 px-6 py-4 rounded-2xl">
               <span className="text-3xl">💎</span>
               <div className="text-left">
-                <p className="text-xs text-gray-500 font-medium">Sizga qo&apos;shildi</p>
+                <p className="text-xs text-gray-500 font-medium">{`Sizga qo'shildi`}</p>
                 <p className="text-3xl font-black text-indigo-600">+{congratsInfo.diamonds}</p>
               </div>
             </div>
@@ -290,7 +290,7 @@ const Page = () => {
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
           Testlar <span className="text-[#8144FE]">{`bo'limi`}</span>
         </h1>
-        <p className="mt-1 text-slate-500 text-lg max-w-2xl font-medium">
+        <p className="mt-1 text-slate-500 text-md max-w-2xl font-medium">
           {`Test yechib bilimingizni oshiring va bonus ballarni qo'lga kiriting!`}
         </p>
       </div>

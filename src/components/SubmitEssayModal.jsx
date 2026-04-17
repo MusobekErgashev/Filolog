@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { X, Upload, FileImage, Loader2, CheckCircle2, AlertCircle, FileText, MessageSquare } from 'lucide-react'
+import { X, Upload, FileImage, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 
 /**
  * 1. Rasm yuklash funksiyasi:
@@ -182,7 +182,7 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
     >
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute h-screen inset-0 bg-black/50 backdrop-blur-sm"
         onClick={handleClose}
       />
 
@@ -202,21 +202,18 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
             <h3 className="text-2xl font-bold text-slate-800">Muvaffaqiyatli!</h3>
             <p className="text-slate-500 text-center px-8">
               Sizning esseniz muvaffaqiyatli yuborildi. <br />
-              Tekshirilgandan so&apos;ng natija bildiriladi.
+              {`Tekshirilgandan so'ng natija bildiriladi.`}
             </p>
           </div>
         )}
 
         {/* Header gradient */}
-        <div className="relative bg-linear-to-r from-[#8144FE] via-[#9B6AFF] to-[#B794FF] px-6 py-5">
+        <div className="relative bg-linear-to-r from-[#8144FE] via-[#9B6AFF] to-[#B794FF] px-6 py-4">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-8 w-16 h-16 bg-white/10 rounded-full translate-y-1/2" />
 
           <div className="flex items-center justify-between relative z-10">
-            <div>
-              <h2 className="text-white text-xl font-bold">Esse topshirish</h2>
-              <p className="text-white/70 text-sm mt-0.5">{task.title}</p>
-            </div>
+            <h2 className="text-white text-xl font-bold">Esse topshirish</h2>
             <button
               onClick={handleClose}
               className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all text-white"
@@ -227,32 +224,15 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Vazifa matni / Mavzu */}
-          <div className="relative overflow-hidden bg-linear-to-br from-slate-50 to-indigo-50/30 border border-indigo-100/50 rounded-[24px] p-5 shadow-sm">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <FileText size={80} />
+        <div className="p-6 space-y-5">
+          {/* Vazifa matni */}
+          {task.content && (
+            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Mavzu</p>
+              <p className="text-md font-semibold mb-1">{task.title}</p>
+              <p className="text-slate-700 text-sm leading-relaxed">{task.content}</p>
             </div>
-
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-2.5">
-                <div className="w-6 h-6 rounded-lg bg-indigo-100 flex items-center justify-center">
-                  <FileText size={14} className="text-[#8144FE]" />
-                </div>
-                <span className="text-[11px] font-bold text-[#8144FE] uppercase tracking-widest">Esse Mavzusi</span>
-              </div>
-
-              <h3 className="text-lg font-bold text-slate-800 mb-2 leading-tight">
-                {task.title}
-              </h3>
-
-              {task.content && (
-                <div className="text-slate-600 text-[13.5px] leading-relaxed font-medium bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-white/50">
-                  {task.content}
-                </div>
-              )}
-            </div>
-          </div>
+          )}
 
           {/* Fayl yuklash zona */}
           <div>
@@ -319,27 +299,21 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
           </div>
 
           {/* Izoh textarea */}
-          <div className="group">
-            <label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2 ml-1">
-              <MessageSquare size={14} className="text-[#8144FE]" />
-              Izoh <span className="text-slate-400 font-normal ml-1">(ixtiyoriy)</span>
+          <div>
+            <label className="text-sm font-semibold text-slate-600 mb-2 block">
+              Izoh <span className="text-slate-400 font-normal">(ixtiyoriy)</span>
             </label>
-            <div className="relative">
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Esse haqida qo'shimcha izoh yozing..."
-                rows={3}
-                className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-[22px]
-                  text-[14px] text-slate-700 placeholder:text-slate-400
-                  focus:outline-none focus:ring-4 focus:ring-[#8144FE]/10 focus:border-[#8144FE]
-                  focus:bg-white transition-all resize-none shadow-sm"
-                id="essay-description"
-              />
-              <div className="absolute bottom-4 right-4 flex gap-1">
-                {[1, 2, 3].map(i => <div key={i} className="w-1 h-1 rounded-full bg-slate-200" />)}
-              </div>
-            </div>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Esse haqida qo'shimcha izoh yozing..."
+              rows={3}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl
+                text-sm text-slate-700 placeholder:text-slate-400
+                focus:outline-none focus:ring-2 focus:ring-[#8144FE]/30 focus:border-[#8144FE]
+                transition-all resize-none"
+              id="essay-description"
+            />
           </div>
 
           {/* Submit button */}

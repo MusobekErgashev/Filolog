@@ -13,9 +13,9 @@ export default function Dashboard() {
 
       <div className="relative border-l-4 border-[#8144FE] pl-6 py-2">
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-          <span className="text-[#8144FE]">Filolog</span> - Onlayn Ta'lim Platformasi
+          <span className="text-[#8144FE]">Filolog</span> - {`Onlayn Ta'lim Platformasi`}
         </h1>
-        <p className="mt-1 text-slate-500 text-lg max-w-2xl font-medium">
+        <p className="mt-1 text-slate-500 text-md max-w-2xl font-medium">
           Ona tili va Adabiyot fanidan Milliy sertifikat olish endi qiyin emas!
         </p>
       </div>
