@@ -71,10 +71,10 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
         alert('⚠️ Maksimal 3 ta rasm yuklash mumkin!')
         return
       }
-      
+
       const newFiles = [...files, ...selectedFiles]
       setFiles(newFiles)
-      
+
       selectedFiles.forEach(file => {
         const reader = new FileReader()
         reader.onload = (ev) => {
@@ -111,10 +111,10 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
           alert('⚠️ Maksimal 3 ta rasm yuklash mumkin!')
           return
         }
-        
+
         const newFiles = [...files, ...droppedFiles]
         setFiles(newFiles)
-        
+
         droppedFiles.forEach(file => {
           const reader = new FileReader()
           reader.onload = (ev) => {
@@ -238,7 +238,7 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
                 Esse rasmlari <span className="text-red-400 font-bold">*</span>
                 <span className="text-xs font-normal text-slate-400 mt-0.5">(2-3 ta rasm tavsiya etiladi)</span>
               </label>
-              
+
               <div
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
@@ -275,8 +275,8 @@ const SubmitEssayModal = ({ isOpen, onClose, task }) => {
                     ))}
                     {previews.length < 3 && (
                       <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl hover:border-[#8144FE]/50 hover:bg-[#8144FE]/5 transition-all aspect-square bg-slate-50/50">
-                         <Plus size={24} className="text-slate-400" />
-                         <span className="text-xs text-slate-400 font-bold mt-2">Yana qo&apos;shish</span>
+                        <Plus size={24} className="text-slate-400" />
+                        <span className="text-xs text-slate-400 font-bold mt-2">Yana qo&apos;shish</span>
                       </div>
                     )}
                   </div>

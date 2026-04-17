@@ -157,8 +157,22 @@ const TaskPage = () => {
   const confirmDelete = async () => {
     if (!taskToDelete) return
     try {
-      const { error } = await supabase.from('tasks').delete().eq('id', taskToDelete)
+      // 1. Avval bog'liq submission-larni o'chirish
+      const { error: subError } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('task_id', taskToDelete)
+
+      if (subError) throw subError
+
+      // 2. Keyin task-ni o'zini o'chirish
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskToDelete)
+
       if (error) throw error
+
       fetchData()
       setDeleteModalOpen(false)
       setTaskToDelete(null)
@@ -586,10 +600,10 @@ const ViewTaskModal = ({ isOpen, onClose, data }) => {
                     if (Array.isArray(img)) images = img;
                     else if (typeof img === 'string' && img) {
                       if (img.startsWith('{') && img.endsWith('}')) images = img.slice(1, -1).split(',').map(s => s.trim().replace(/^"(.*)"$/, '$1'));
-                      else if (img.startsWith('[') && img.endsWith(']')) { try { images = JSON.parse(img) } catch(e) { images = [img] } }
+                      else if (img.startsWith('[') && img.endsWith(']')) { try { images = JSON.parse(img) } catch (e) { images = [img] } }
                       else images = [img];
                     }
-                    
+
                     return images.length > 0 ? images.map((src, idx) => (
                       <a key={idx} href={src} target="_blank" rel="noopener noreferrer" className="block w-full aspect-square border-2 border-slate-100 rounded-[24px] overflow-hidden hover:opacity-90 hover:scale-[1.02] transition-all bg-slate-50 p-1">
                         <img src={src} alt={`Sizning rasm ${idx + 1}`} className="w-full h-full object-cover rounded-[20px]" />
@@ -610,8 +624,8 @@ const ViewTaskModal = ({ isOpen, onClose, data }) => {
                         <Star size={20} fill="currentColor" />
                       </div>
                       <div>
-                         <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Natija</p>
-                         <p className="text-lg font-black text-emerald-900">Baholandi: {submission.score}/24 ball</p>
+                        <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Natija</p>
+                        <p className="text-lg font-black text-emerald-900">Baholandi: {submission.score}/24 ball</p>
                       </div>
                     </div>
                     {submission.feedback && (
@@ -625,7 +639,7 @@ const ViewTaskModal = ({ isOpen, onClose, data }) => {
                 {submission.status === 'pending' && (
                   <div className="bg-amber-50 p-5 rounded-[32px] border border-amber-100 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20 shrink-0">
-                       <Clock size={24} className="animate-pulse" />
+                      <Clock size={24} className="animate-pulse" />
                     </div>
                     <div>
                       <p className="text-sm font-black text-amber-800 leading-tight">Javobingiz tekshirilmoqda</p>

@@ -17,11 +17,21 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
   const [rotation, setRotation] = useState(0)
   const [activeImg, setActiveImg] = useState(0)
 
+  // Block body scroll when modal or lightbox is open
+  React.useEffect(() => {
+    if (isOpen || showLightbox) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => { document.body.style.overflow = 'unset' }
+  }, [isOpen, showLightbox])
+
   // Rasmlarni xavfsiz formatlash (array, string yoki PG format)
   const getImages = () => {
     if (!submission?.answer_image) return []
     if (Array.isArray(submission.answer_image)) return submission.answer_image
-    
+
     // Agar string bo'lsa va {..} yoki [..] formatida bo'lsa
     let img = submission.answer_image
     if (typeof img === 'string') {
@@ -164,13 +174,13 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
 
                     {allImages.length > 1 && (
                       <>
-                        <button 
+                        <button
                           onClick={() => setActiveImg(prev => (prev > 0 ? prev - 1 : allImages.length - 1))}
                           className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-slate-700 hover:text-[#8144FE] transition-all cursor-pointer z-10"
                         >
                           <ChevronLeft size={18} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => setActiveImg(prev => (prev < allImages.length - 1 ? prev + 1 : 0))}
                           className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-slate-700 hover:text-[#8144FE] transition-all cursor-pointer z-10"
                         >
@@ -289,7 +299,7 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
 
       {/* Lightbox */}
       {showLightbox && (
-        <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/95 animate-in fade-in duration-300">
+        <div className="fixed inset-0 h-screen w-screen z-[9999] flex flex-col items-center justify-center bg-black/95 animate-in fade-in duration-300">
           <div className="absolute top-6 right-6 flex items-center gap-4 z-10">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/10">
               <button onClick={handleZoomOut} className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer" disabled={zoom <= 1}>
@@ -315,13 +325,13 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
           <div className="w-full h-full flex items-center justify-center overflow-auto p-10 custom-scrollbar relative">
             {allImages.length > 1 && (
               <>
-                <button 
+                <button
                   onClick={() => setActiveImg(prev => (prev > 0 ? prev - 1 : allImages.length - 1))}
                   className="fixed left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-20"
                 >
                   <ChevronLeft size={32} />
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveImg(prev => (prev < allImages.length - 1 ? prev + 1 : 0))}
                   className="fixed right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-20"
                 >
