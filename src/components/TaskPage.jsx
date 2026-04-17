@@ -370,7 +370,7 @@ const TaskPage = () => {
                 })}
 
                 {tasks.length === 0 && (
-                  <EmptyState message="Hali esse vazifalari qo'shilmagan" sub="'Esse qo'shish' tugmasini bosing" />
+                  <EmptyState message="Hali esse vazifalari qo'shilmagan" sub="&quot;Esse qo'shish&quot; tugmasini bosing" />
                 )}
               </div>
             ) : (
@@ -402,7 +402,7 @@ const TaskPage = () => {
                             {/* Chap */}
                             <div className="flex-1 min-w-0 space-y-2">
                               <div className="flex items-center gap-3">
-                                <div className="min-w-10 h-10 rounded-xl bg-gradient-to-br from-[#8144FE]/10 to-[#B794FF]/10
+                                <div className="min-w-10 h-10 rounded-xl bg-linear-to-br from-[#8144FE]/10 to-[#B794FF]/10
                                   flex items-center justify-center border border-[#8144FE]/10 shrink-0">
                                   <FileText className="text-[#8144FE]" size={20} />
                                 </div>
@@ -437,7 +437,7 @@ const TaskPage = () => {
                                   {submission.feedback && (
                                     <div className="flex items-start gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
                                       <MessageSquare size={14} className="text-slate-400 mt-0.5 shrink-0" />
-                                      <p className="text-sm text-slate-600 italic">"{submission.feedback}"</p>
+                                      <p className="text-sm text-slate-600 italic">&quot;{submission.feedback}&quot;</p>
                                     </div>
                                   )}
                                 </div>
@@ -551,49 +551,101 @@ const ViewTaskModal = ({ isOpen, onClose, data }) => {
   if (!isOpen || !data) return null;
   const { task, submission } = data;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 h-screen bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl p-6 overflow-hidden" style={{ animation: 'taskFadeIn 0.3s ease-out' }}>
-        <div className="flex justify-between items-start mb-5">
-          <div className="flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8144FE]/10 to-[#B794FF]/10 flex items-center justify-center border border-[#8144FE]/10">
-              <FileText className="text-[#8144FE] min-w-10" size={20} />
+    <div className="fixed h-screen inset-0 z-50 overflow-y-auto bg-slate-50/50 backdrop-blur-md" style={{ animation: 'modalFadeIn 0.3s ease-out' }}>
+      <div className="min-h-screen flex items-start justify-center">
+        {/* Overlay */}
+        <div className="fixed inset-0 bg-black/5 z-0" onClick={onClose} />
+
+        {/* Page Content */}
+        <div className="relative w-full max-w-2xl bg-white min-h-screen shadow-2xl overflow-hidden z-10 p-6 flex flex-col" style={{ animation: 'modalSlideUp 0.4s ease-out' }}>
+          <div className="flex justify-between items-center mb-8 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-[#8144FE]/10 to-[#B794FF]/10 flex items-center justify-center border border-[#8144FE]/10">
+                <FileText className="text-[#8144FE]" size={24} />
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-slate-800 tracking-tight">Vazifa <span className="text-[#8144FE]">mazmuni</span></h2>
+              </div>
             </div>
+            <button onClick={onClose} className="p-2.5 text-slate-400 hover:bg-slate-100 bg-slate-50 hover:text-slate-600 rounded-xl transition-all cursor-pointer"><X size={24} /></button>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 bg-slate-50 ml-1 rounded-xl transition-colors cursor-pointer"><X size={20} /></button>
-        </div>
-        <div className="bg-slate-50 p-5 rounded-2xl space-y-2 border border-slate-100 mb-5">
-          <h2 className="text-lg font-bold leading-6 text-slate-800">{task.title}</h2>
-          <p className="text-md text-slate-700 whitespace-pre-wrap leading-relaxed">{task.content}</p>
-        </div>
-        {submission && (
-          <div className="mb-5 space-y-3">
-            <h3 className="text-sm font-bold text-slate-800">Sizning javobingiz</h3>
-            <a href={submission.answer_image} target="_blank" rel="noopener noreferrer" className="block w-max">
-              <img src={submission.answer_image} alt="Sizning rasm" className="h-30 rounded-lg border border-slate-200 hover:opacity-80 transition-opacity" />
-            </a>
-            {submission.status === 'approved' && submission.score !== null && (
-              <div className="bg-linear-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <Star size={16} className="text-green-600" />
-                  <p className="font-bold text-green-700">Baholandi: {submission.score}/24 ball</p>
+
+          <div className="flex-1 space-y-8">
+            <div className="bg-slate-50 p-6 rounded-[32px] space-y-3 border border-slate-100">
+              <h2 className="text-xl font-black text-slate-800 leading-tight">{task.title}</h2>
+              <p className="text-md text-slate-700 whitespace-pre-wrap leading-relaxed font-medium">{task.content}</p>
+            </div>
+
+            {submission && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest pl-1">Sizning javobingiz</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {(() => {
+                    const img = submission.answer_image;
+                    let images = [];
+                    if (Array.isArray(img)) images = img;
+                    else if (typeof img === 'string' && img) {
+                      if (img.startsWith('{') && img.endsWith('}')) images = img.slice(1, -1).split(',').map(s => s.trim().replace(/^"(.*)"$/, '$1'));
+                      else if (img.startsWith('[') && img.endsWith(']')) { try { images = JSON.parse(img) } catch(e) { images = [img] } }
+                      else images = [img];
+                    }
+                    
+                    return images.length > 0 ? images.map((src, idx) => (
+                      <a key={idx} href={src} target="_blank" rel="noopener noreferrer" className="block w-full aspect-square border-2 border-slate-100 rounded-[24px] overflow-hidden hover:opacity-90 hover:scale-[1.02] transition-all bg-slate-50 p-1">
+                        <img src={src} alt={`Sizning rasm ${idx + 1}`} className="w-full h-full object-cover rounded-[20px]" />
+                      </a>
+                    )) : (
+                      <div className="col-span-2 flex flex-col items-center justify-center py-10 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 text-slate-300">
+                        <ImageOff size={40} />
+                        <p className="text-sm mt-3 font-bold">Rasm yuklanmagan</p>
+                      </div>
+                    );
+                  })()}
                 </div>
-                {submission.feedback && <p className="text-sm text-green-600 italic">&quot; {submission.feedback} &quot;</p>}
-              </div>
-            )}
-            {submission.status === 'pending' && (
-              <div className="bg-amber-50 p-3 rounded-xl border border-amber-100">
-                <p className="text-sm font-semibold text-amber-600 flex items-center gap-2"><Clock size={16} /> Javobingiz tekshirilmoqda...</p>
+
+                {submission.status === 'approved' && submission.score !== null && (
+                  <div className="bg-linear-to-r from-emerald-50 to-teal-50 p-6 rounded-[32px] border border-emerald-100 shadow-sm shadow-emerald-500/5">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                        <Star size={20} fill="currentColor" />
+                      </div>
+                      <div>
+                         <p className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Natija</p>
+                         <p className="text-lg font-black text-emerald-900">Baholandi: {submission.score}/24 ball</p>
+                      </div>
+                    </div>
+                    {submission.feedback && (
+                      <div className="bg-white/60 p-4 rounded-2xl border border-emerald-100/50">
+                        <p className="text-sm text-emerald-800 font-medium italic leading-relaxed">&quot; {submission.feedback} &quot;</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {submission.status === 'pending' && (
+                  <div className="bg-amber-50 p-5 rounded-[32px] border border-amber-100 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20 shrink-0">
+                       <Clock size={24} className="animate-pulse" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-amber-800 leading-tight">Javobingiz tekshirilmoqda</p>
+                      <p className="text-xs font-medium text-amber-600 mt-0.5">Tez orada adminlarimiz tomonidan baholanadi.</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
-        <button onClick={onClose} className="w-full py-3.5 bg-linear-to-r from-[#8144FE] to-[#9B6AFF] hover:shadow-lg hover:shadow-[#8144FE]/25 hover:scale-[1.02] active:scale-95 text-white rounded-2xl font-semibold transition-all cursor-pointer">
-          Yopish
-        </button>
+
+          <div className="pt-8 pb-10 shrink-0">
+            <button onClick={onClose} className="w-full py-2 bg-linear-to-r from-[#8144FE] to-[#9B6AFF] hover:shadow-2xl hover:shadow-[#8144FE]/30 hover:scale-[1.02] active:scale-95 text-white rounded-lg font-black text-lg transition-all cursor-pointer shadow-xl">
+              Yopish
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default TaskPage

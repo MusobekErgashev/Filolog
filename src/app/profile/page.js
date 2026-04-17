@@ -137,7 +137,7 @@ const Page = () => {
             <div className="flex gap-3 mt-4 md:mt-0">
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 cursor-pointer bg-[#8144FE] hover:bg-[#6c34e0] text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200"
+                className="flex items-center text-[14px] sm:text-[16px] gap-2 cursor-pointer bg-[#8144FE] hover:bg-[#6c34e0] text-white px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200"
               >
                 <Edit3 size={18} /> Profilni tahrirlash
               </button>
