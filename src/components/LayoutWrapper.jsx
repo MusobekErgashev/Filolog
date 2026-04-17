@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
 import GlobalSessionTracker from "@/components/GlobalSessionTracker";
+import GoogleProfileModal from "@/components/GoogleProfileModal";
 import { usePathname } from "next/navigation";
 
 export default function LayoutWrapper({ children }) {
@@ -15,6 +16,7 @@ export default function LayoutWrapper({ children }) {
 
   return (
     <>
+      <GoogleProfileModal />
       {hideLayout ? (
         <main className="min-h-screen">
           {children}
@@ -22,6 +24,7 @@ export default function LayoutWrapper({ children }) {
       ) : (
         <div className="h-screen w-full flex flex-col">
           <GlobalSessionTracker />
+
           <Header />
           <div className="flex-1 relative overflow-hidden">
             <Menu />

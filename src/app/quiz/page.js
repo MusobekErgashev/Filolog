@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import QuizModal from "@/components/QuizModal";
 import AddQuizModal from "@/components/AddQuizModal";
 import ConfirmModal from "@/components/ConfirmModal";
-import { Pencil, Trash2, Gem } from "lucide-react";
+import { Pencil, Trash2, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const Page = () => {
@@ -16,6 +16,7 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState('user');
   const [completedQuizzesList, setCompletedQuizzesList] = useState([]);
+  const [quizProgressMap, setQuizProgressMap] = useState({});
   const [congratsInfo, setCongratsInfo] = useState(null); // { diamonds: number }
   const [confirmDelete, setConfirmDelete] = useState(null); // quiz id to delete
 
@@ -23,7 +24,11 @@ const Page = () => {
     const fetchRoleAndMetadata = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setCompletedQuizzesList(user.user_metadata?.completed_quizzes || []);
+        const completed = user.user_metadata?.completed_quizzes || [];
+        const progress = user.user_metadata?.quiz_progress || {};
+        setCompletedQuizzesList(completed);
+        setQuizProgressMap(progress);
+        
         const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
         if (data?.role) setUserRole(data.role);
       }
@@ -52,8 +57,6 @@ const Page = () => {
             id: q.id,
             duration: q.time,
             diamonds: q.reward,
-            isCompleted: q.isCompleted || false,
-            progress: q.progress || 0,
             questions: q.question || []
           }));
           setAllQuizzes(mappedData);
@@ -68,7 +71,6 @@ const Page = () => {
   }, []);
 
   const handleQuizClick = async (quiz) => {
-    // We already fetch the full details (question column) in the initial fetch
     setSelectedQuiz(quiz);
   };
 
@@ -101,17 +103,11 @@ const Page = () => {
           id: data.id,
           duration: data.time,
           diamonds: data.reward,
-          isCompleted: data.isCompleted || false,
-          progress: data.progress || 0,
           questions: data.question || []
         };
 
         setAllQuizzes(prev => prev.map(q => q.id === editingQuiz.id ? mappedQuiz : q));
       } else {
-        // Also set initial values for new quiz completion status
-        backendQuiz.isCompleted = false;
-        backendQuiz.progress = 0;
-
         const { data, error } = await supabase
           .from('quizzes')
           .insert([backendQuiz])
@@ -129,8 +125,6 @@ const Page = () => {
           id: data.id,
           duration: data.time,
           diamonds: data.reward,
-          isCompleted: data.isCompleted || false,
-          progress: data.progress || 0,
           questions: data.question || []
         };
 
@@ -156,7 +150,7 @@ const Page = () => {
   };
 
   const totalQuizzes = allQuizzes.length;
-  const completedCount = allQuizzes.filter(q => q.isCompleted).length;
+  const completedCount = completedQuizzesList.length;
 
   const statsData = [
     {
@@ -176,15 +170,19 @@ const Page = () => {
   ];
 
   const handleProgressUpdate = async (progress) => {
-    if (selectedQuiz) {
+    if (selectedQuiz && userRole === 'user') {
       try {
-        const { error } = await supabase
-          .from('quizzes')
-          .update({ progress })
-          .eq('id', selectedQuiz.id);
-
-        if (error) console.error("Error updating progress:", error);
-        else setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, progress } : q));
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const currentProgress = user.user_metadata?.quiz_progress || {};
+          const newProgress = { ...currentProgress, [selectedQuiz.id]: progress };
+          
+          await supabase.auth.updateUser({
+            data: { quiz_progress: newProgress }
+          });
+          
+          setQuizProgressMap(newProgress);
+        }
       } catch (error) {
         console.error("Error updating progress:", error);
       }
@@ -194,7 +192,6 @@ const Page = () => {
   const handleQuizClose = (results) => {
     if (selectedQuiz && results) {
       if (results.percentage === 100) {
-        // Run DB operations in background so modal closes instantly
         (async () => {
           try {
             if (userRole === 'user') {
@@ -205,10 +202,19 @@ const Page = () => {
 
                 if (isFirstTime) {
                   const earnedDiamonds = selectedQuiz.diamonds || 10;
+                  
+                  const newCompleted = [...completedQuizzes, selectedQuiz.id];
+                  const newProgress = { ...(user.user_metadata?.quiz_progress || {}), [selectedQuiz.id]: 100 };
+
                   await supabase.auth.updateUser({
-                    data: { completed_quizzes: [...completedQuizzes, selectedQuiz.id] }
+                    data: { 
+                      completed_quizzes: newCompleted,
+                      quiz_progress: newProgress
+                    }
                   });
-                  setCompletedQuizzesList(prev => [...prev, selectedQuiz.id]);
+                  
+                  setCompletedQuizzesList(newCompleted);
+                  setQuizProgressMap(newProgress);
 
                   const { data: profile } = await supabase.from('profiles').select('diamonds, tests_taken').eq('id', user.id).single();
                   const currentDiamonds = profile?.diamonds || 0;
@@ -225,23 +231,10 @@ const Page = () => {
                 }
               }
             }
-
-            const { error } = await supabase
-              .from('quizzes')
-              .update({ isCompleted: true, progress: 100 })
-              .eq('id', selectedQuiz.id);
-
-            if (error) console.error("Error marking completion:", error);
           } catch (error) {
             console.error("Background quiz update error:", error);
           }
         })();
-
-        // Instant UI update
-        setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, isCompleted: true, progress: 100 } : q));
-      } else {
-        const newProgress = results.percentage === 0 ? selectedQuiz.progress : selectedQuiz.progress;
-        setAllQuizzes(prev => prev.map(q => q.id === selectedQuiz.id ? { ...q, progress: newProgress } : q));
       }
     }
     setSelectedQuiz(null);
@@ -292,12 +285,13 @@ const Page = () => {
           onCancel={() => setConfirmDelete(null)}
         />
       )}
-      <div>
-        <h1 className="text-[26px] sm:text-[30px] lg:text-[34px] font-semibold leading-7 sm:leading-9 lg:leading-11">
-          {"Testlar bo'limi"}
+
+      <div className="relative border-l-4 border-[#8144FE] pl-6 py-2">
+        <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+          Testlar <span className="text-[#8144FE]">{`bo'limi`}</span>
         </h1>
-        <p className="text-[14px] lg:text-[18px] text-[#8144FE]">
-          {"Test yechib bilimingizni oshiring va bonus ballarni qo'lga kiriting"}
+        <p className="mt-1 text-slate-500 text-lg max-w-2xl font-medium">
+          {`Test yechib bilimingizni oshiring va bonus ballarni qo'lga kiriting!`}
         </p>
       </div>
 
@@ -351,24 +345,62 @@ const Page = () => {
           <p className="text-center text-gray-500 py-10 font-medium">Hozircha testlar mavjud emas.</p>
         )}
         {allQuizzes.map((quiz) => {
+          const isCompleted = completedQuizzesList.includes(quiz.id);
+          const currentProgress = quizProgressMap[quiz.id] || 0;
+
           return (
             <div
               key={quiz.id}
               onClick={() => handleQuizClick(quiz)}
-              className="bg-white flex flex-col cursor-pointer group hover:bg-gray-50 border-2 border-white gap-1.5 sm:gap-2 p-4 sm:p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 relative overflow-hidden"
+              className="bg-white flex flex-col md:flex-row md:items-center justify-between cursor-pointer group hover:bg-gray-50 border-2 border-white gap-4 p-4 sm:p-6 rounded-2xl shadow-xl transition-all hover:shadow-2xl shadow-gray-200 relative overflow-hidden"
             >
-              <div className="flex gap-2 items-center justify-between">
-                <div className="flex gap-2 items-center">
+              <div className="flex-1">
+                <div className="flex gap-2 items-center mb-1">
                   <h1 className="font-semibold text-[18px] lg:text-[22px] leading-5.5">
                     {quiz.title}
                   </h1>
-                  {quiz.isCompleted && (
+                  {isCompleted && (
                     <span className="text-[10px] lg:text-[14px] font-normal px-2 py-0.5 h-max bg-green-100 text-green-700 rounded-md border border-green-200">
                       Tugatilgan
                     </span>
                   )}
                 </div>
 
+                <p className="text-[13px] lg:text-[16px] font-light mb-3">
+                  {quiz.description}
+                </p>
+
+                <div className="flex flex-wrap gap-3 items-center">
+                  <div className="flex items-center gap-1.5 font-light text-[#45556C]">
+                    <Image src={"/assets/quiz-question-count.png"} alt="" className="min-w-4 lg:min-w-5" width={0} height={0} />
+                    <p className="text-[13px] lg:text-[16px]">{quiz.questions.length} ta savollar</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-light text-[#45556C]">
+                    <Image src={"/assets/quiz-question-time.png"} alt="" className="min-w-4 lg:min-w-5" width={0} height={0} />
+                    <p className="text-[13px] lg:text-[16px]">{quiz.duration || 10} daqiqa</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-yellow-50 text-amber-600 rounded-lg border border-amber-100">
+                    <span className="text-[12px] lg:text-[14px]">💎</span>
+                    <span className="text-[13px] lg:text-[14px] font-bold">{quiz.diamonds || 10}</span>
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className='w-full flex gap-3 items-center mt-3'>
+                  <div className='flex-1 bg-gray-100 rounded-full h-1.5 lg:h-2 overflow-hidden'>
+                    <div
+                      className={`h-full bg-linear-to-r from-[#8144FE] to-[#5B2CC7] rounded-full transition-all duration-500`}
+                      style={{ width: `${isCompleted ? 100 : currentProgress}%` }}
+                    ></div>
+                  </div>
+                  <h1 className='w-max text-[12px] lg:text-[14px] font-bold text-[#8144FE]'>
+                    {isCompleted ? 100 : currentProgress}%
+                  </h1>
+                </div>
+              </div>
+
+              {/* Right Side Buttons */}
+              <div className="flex flex-row md:flex-col items-center gap-2 md:pl-6 md:border-l border-gray-100">
                 {userRole === 'admin' && (
                   <div className="flex items-center gap-2">
                     <button
@@ -385,52 +417,17 @@ const Page = () => {
                     </button>
                   </div>
                 )}
-              </div>
-
-              <p className="text-[13px] lg:text-[16px] font-light">
-                {quiz.description}
-              </p>
-
-              <div className="flex mt-1 lg:mt-1.5 gap-3 items-center">
-                <div className="flex items-center gap-1.5 font-light text-[#45556C]">
-                  <Image
-                    src={"/assets/quiz-question-count.png"}
-                    alt=""
-                    className="min-w-4 lg:min-w-5"
-                    width={0}
-                    height={0}
-                  />
-                  <p className="text-[13px] lg:text-[16px]">
-                    {quiz.questions.length} ta savollar
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 font-light text-[#45556C]">
-                  <Image
-                    src={"/assets/quiz-question-time.png"}
-                    alt=""
-                    className="min-w-4 lg:min-w-5"
-                    width={0}
-                    height={0}
-                  />
-                  <p className="text-[13px] lg:text-[16px]">{quiz.duration || 10} daqiqa</p>
-                </div>
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-yellow-50 text-amber-600 rounded-lg border border-amber-100">
-                  <span className="text-[12px] lg:text-[14px]">💎</span>
-                  <span className="text-[13px] lg:text-[14px] font-bold">{quiz.diamonds || 10}</span>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className='w-full flex gap-3 items-center mt-2'>
-                <div className='flex-1 bg-gray-100 rounded-full h-1.5 lg:h-2 overflow-hidden'>
-                  <div
-                    className='h-full bg-linear-to-r from-[#8144FE] to-[#5B2CC7] rounded-full transition-all duration-500'
-                    style={{ width: `${quiz.isCompleted ? 100 : (quiz.progress || 0)}%` }}
-                  ></div>
-                </div>
-                <h1 className='w-max text-[12px] lg:text-[14px] font-bold text-[#8144FE]'>
-                  {quiz.isCompleted ? 100 : (quiz.progress || 0)}%
-                </h1>
+                
+                <button 
+                  className={`px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all
+                    ${isCompleted 
+                      ? 'bg-gray-100 text-gray-400 cursor-default' 
+                      : 'bg-[#8144FE] text-white hover:scale-105 active:scale-95 shadow-md shadow-indigo-100'
+                    }`}
+                >
+                  {isCompleted ? 'Yechilgan' : currentProgress > 0 ? 'Davom etish' : 'Boshlash'}
+                  {!isCompleted && <ArrowRight size={16} />}
+                </button>
               </div>
             </div>
           );

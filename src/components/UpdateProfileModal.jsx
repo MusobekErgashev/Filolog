@@ -90,13 +90,21 @@ const UpdateProfileModal = ({ setIsModalOpen }) => {
 
             const { error: profileError } = await supabase
                 .from('profiles')
-                .update({
+                .upsert({
+                    id: user.id,
                     first_name: updatedName,
                     last_name: updatedSurName,
                 })
-                .eq('id', user.id)
 
             if (profileError) throw profileError
+
+            // Optionally update auth metadata for faster display in other components
+            await supabase.auth.updateUser({
+                data: {
+                    first_name: updatedName,
+                    last_name: updatedSurName
+                }
+            })
 
             window.location.reload()
             setIsModalOpen(false)

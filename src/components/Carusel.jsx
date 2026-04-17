@@ -21,17 +21,17 @@ export default function HeroSlider() {
     >
       {/* Slide 1 */}
       <SwiperSlide>
-        <div className="bg-linear-to-r from-indigo-600 h-full justify-center to-purple-600 w-full text-white p-10 rounded-2xl flex flex-col items-center gap-1.5 sm:gap-3 lg:gap-5">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold">
+        <div className="bg-linear-to-r from-indigo-600 h-full justify-center to-purple-600 w-full text-white p-10 rounded-2xl flex flex-col items-center gap-2 sm:gap-3 lg:gap-5">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-2xl leading-6.5 lg:text-3xl font-bold">
               {`Filolog Onlayn Ta'lim Platformasi`}
             </h2>
-            <p className="text-[14px] lg:text-[18px]">Ona tili va adabiyot fanidan professional videodarslar.</p>
+            <p className="text-[14px] leading-4 lg:text-[18px]">Ona tili va adabiyot fanidan professional videodarslar.</p>
           </div>
 
           <Link
             href=""
-            className="text-[14px] lg:text-[18px] flex items-center gap-2 bg-white text-indigo-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
+            className="text-[14px] mt-2 lg:text-[18px] flex items-center gap-2 bg-white text-indigo-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
             <MoveRight className="text-[12px]" />
@@ -41,17 +41,17 @@ export default function HeroSlider() {
 
       {/* Slide 2 */}
       <SwiperSlide>
-        <div className="w-full bg-linear-to-r h-full justify-center from-blue-600 to-cyan-500 text-white p-10 rounded-2xl flex flex-col gap-1.5 sm:gap-3 lg:gap-5 items-center">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold">
+        <div className="w-full bg-linear-to-r h-full justify-center from-blue-600 to-cyan-500 text-white p-10 rounded-2xl flex flex-col gap-2 sm:gap-3 lg:gap-5 items-center">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-2xl leading-6.5 lg:text-3xl font-bold">
               Test va Reyting Tizimi
             </h2>
-            <p className="text-[14px] lg:text-[18px]">Bilimingizni testlar orqali sinab ko‘ring.</p>
+            <p className="text-[14px] leading-4 lg:text-[18px]">Bilimingizni testlar orqali sinab ko‘ring.</p>
           </div>
 
           <Link
             href=""
-            className="text-[14px] lg:text-[18px] flex items-center gap-2 justify-center bg-white text-blue-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
+            className="text-[14px] mt-2 lg:text-[18px] flex items-center gap-2 justify-center bg-white text-blue-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
             <MoveRight className="text-[12px]" />
@@ -61,17 +61,17 @@ export default function HeroSlider() {
 
       {/* Slide 3 */}
       <SwiperSlide>
-        <div className="w-full bg-linear-to-r h-full justify-center from-purple-600 to-pink-500 text-white p-10 rounded-2xl flex flex-col gap-1.5 sm:gap-3 lg:gap-5 items-center">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold">
+        <div className="w-full bg-linear-to-r h-full justify-center from-purple-600 to-pink-500 text-white p-10 rounded-2xl flex flex-col gap-2 sm:gap-3 lg:gap-5 items-center">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-2xl leading-6.5 lg:text-3xl font-bold">
               Raqamli Kutubxona
             </h2>
-            <p className="text-[14px] lg:text-[18px]">PDF kitoblarni online o‘qing va bilimni mustahkamlang.</p>
+            <p className="text-[14px] leading-4 lg:text-[18px]">PDF kitoblarni online o‘qing va bilimni mustahkamlang.</p>
           </div>
 
           <Link
             href=""
-            className="text-[14px] lg:text-[18px] flex items-center gap-2 bg-white text-purple-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
+            className="text-[14px] mt-2 lg:text-[18px] flex items-center gap-2 bg-white text-purple-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
             <MoveRight className="text-[12px]" />
@@ -81,17 +81,17 @@ export default function HeroSlider() {
 
       {/* Slide 4 */}
       <SwiperSlide>
-        <div className="w-full bg-linear-to-r h-full justify-center from-green-600 to-emerald-500 text-white p-10 rounded-2xl flex flex-col gap-1.5 sm:gap-3 lg:gap-5 items-center">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold">
+        <div className="w-full bg-linear-to-r h-full justify-center from-green-600 to-emerald-500 text-white p-10 rounded-2xl flex flex-col gap-2 sm:gap-3 lg:gap-5 items-center">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-2xl leading-6 lg:text-3xl font-bold">
               Premium Obuna
             </h2>
-            <p className="text-[14px] lg:text-[18px]">Cheksiz darslar, testlar va AI yordamchi imkoniyati.</p>
+            <p className="text-[14px] leading-4 lg:text-[18px]">Cheksiz darslar, testlar va AI yordamchi imkoniyati.</p>
           </div>
 
           <Link
             href=""
-            className="text-[14px] lg:text-[18px] flex items-center gap-2 bg-white text-green-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
+            className="text-[14px] mt-2 lg:text-[18px] flex items-center gap-2 bg-white text-green-600 px-6 py-2 rounded-lg w-fit font-semibold hover:bg-gray-200 transition"
           >
             Batafsil
             <MoveRight className="text-[12px]" />

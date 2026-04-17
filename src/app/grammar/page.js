@@ -139,10 +139,20 @@ const GrammarPage = () => {
             <div className='w-full space-y-5'>
                 {/* Header Section */}
                 <div className='flex flex-col md:flex-row md:items-center justify-between gap-3'>
-                    <div>
-                        <h1 className="text-[26px] sm:text-[30px] lg:text-[34px] font-semibold leading-7 sm:leading-9 lg:leading-11">Ona tili qoidalari</h1>
-                        <p className="text-[14px] lg:text-[18px] text-[#8144FE]">Grammatika va fonetika qoidalarini shu yerdan topishingiz mumkin!</p>
+                    {/* <div className='text-center md:text-left space-y-1 md:space-y-0'>
+                        <h1 className="text-[28px] sm:text-[30px] lg:text-[34px] font-black leading-7 sm:leading-9 lg:leading-11">Ona tili qoidalari</h1>
+                        <p className="text-[14px] max-w-[80%] md:max-w-auto mx-auto md:mx-0 lg:text-[18px] text-[#8144FE]">Grammatika va fonetika qoidalarini shu yerdan topishingiz mumkin!</p>
+                    </div> */}
+
+                    <div className="relative border-l-4 border-[#8144FE] pl-6 py-2">
+                        <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                            Ona tili <span className="text-[#8144FE]">Qoidalari</span>
+                        </h1>
+                        <p className="mt-1 text-slate-500 text-lg max-w-2xl font-medium">
+                            Grammatika va fonetika qoidalarini shu yerdan topishingiz mumkin!
+                        </p>
                     </div>
+
                     {userRole === 'admin' && (
                         <button
                             onClick={() => {
@@ -169,7 +179,7 @@ const GrammarPage = () => {
                             className='w-full bg-white pl-12 pr-4 py-2 sm:py-3 rounded-md md:rounded-2xl border border-gray-100 shadow-sm outline-none grammar-search-input transition-all text-gray-700 font-medium'
                         />
                     </div>
-                    <button 
+                    <button
                         onClick={() => setShowSavedOnly(!showSavedOnly)}
                         className={`p-2 sm:p-3 rounded-md md:rounded-2xl border shadow transition-all cursor-pointer ${showSavedOnly ? 'bg-[#8144FE] border-[#8144FE] text-white shadow-lg' : 'bg-white border-gray-100 text-gray-500 hover:bg-gray-50'}`}
                         title="Saqlanganlar"
@@ -232,7 +242,7 @@ const GrammarPage = () => {
                                                 </button>
 
                                                 {openMenuId === rule.id && (
-                                                    <div 
+                                                    <div
                                                         className="absolute right-0 top-full mt-1 w-36 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in zoom-in duration-200"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
@@ -266,7 +276,7 @@ const GrammarPage = () => {
                                                 {rule.content}
                                             </p>
                                             <div className="flex justify-end mt-2">
-                                                <button 
+                                                <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         toggleSaveRule(rule.id);

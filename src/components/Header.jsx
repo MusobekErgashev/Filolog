@@ -33,7 +33,7 @@ const Header = () => {
     }, []);
 
     return (
-        <div className='w-full px-5 py-2 sm:py-3 flex justify-between items-center bg-white border-b border-[#DFE5ED]'>
+        <div className='w-full px-5 py-3 flex justify-between items-center bg-white border-b border-[#DFE5ED]'>
             <div className='flex items-center gap-4'>
                 <MenuIcon 
                     className='w-6 h-6 sm:w-7 sm:h-7 text-indigo-600 cursor-pointer hover:bg-slate-50 rounded-md transition-colors' 
@@ -41,7 +41,7 @@ const Header = () => {
                 />
 
                 <Link href={'/dashboard'}>
-                    <Image src={'/assets/logo.png'} alt='logo' width={140} height={50} className='min-w-25 w-25 sm:min-w-28 md:min-w-32 md:w-32 lg:w-35' />
+                    <Image src={'/assets/logo.png'} alt='logo' width={140} height={50} className='min-w-26 w-26 sm:min-w-28 md:min-w-32 md:w-32 lg:w-35' />
                 </Link>
             </div>
 

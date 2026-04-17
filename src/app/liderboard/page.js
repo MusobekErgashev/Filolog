@@ -66,7 +66,7 @@ const LeaderboardPage = () => {
                 {/* Header */}
                 <div className="flex flex-col items-center gap-8 text-center">
                     <div className="md:space-y-3">
-                        <h1 className="text-[28px] sm:text-[30px] md:text-5xl font-black text-slate-900 tracking-tight">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
                             Peshqadamlar <span className="text-indigo-600">Reytingi</span>
                         </h1>
                         <p className="text-slate-500 font-medium text-[16px] sm:text-lg">Platformaning eng faol bilimdonlari bilan tanishing</p>
