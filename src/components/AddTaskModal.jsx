@@ -4,12 +4,21 @@ import React, { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { X, Plus, Loader2, CheckCircle2, BookOpen, Gem } from 'lucide-react'
 
-const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [diamonds, setDiamonds] = useState(10)
+const AddTaskModal = ({ isOpen, onClose, onAdded, editData = null }) => {
+  const [title, setTitle] = useState(editData?.title || '')
+  const [content, setContent] = useState(editData?.content || '')
+  const [diamonds, setDiamonds] = useState(editData?.diamonds || 10)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  // EditData o'zgarganda (masalan, ikkinchi marta edit bosilganda) state larni yangilash
+  React.useEffect(() => {
+    if (isOpen) {
+      setTitle(editData?.title || '')
+      setContent(editData?.content || '')
+      setDiamonds(editData?.diamonds || 10)
+    }
+  }, [isOpen, editData])
 
   if (!isOpen) return null
 
@@ -32,11 +41,20 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
     }
     setLoading(true)
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .insert([{ title: title.trim(), content: content.trim(), diamonds }])
-
-      if (error) throw error
+      if (editData?.id) {
+        // Tahrirlash
+        const { error } = await supabase
+          .from('tasks')
+          .update({ title: title.trim(), content: content.trim(), diamonds })
+          .eq('id', editData.id)
+        if (error) throw error
+      } else {
+        // Yangi qo'shish
+        const { error } = await supabase
+          .from('tasks')
+          .insert([{ title: title.trim(), content: content.trim(), diamonds }])
+        if (error) throw error
+      }
 
       setSuccess(true)
       onAdded?.()
@@ -63,7 +81,9 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
               <CheckCircle2 className="text-green-500" size={40} />
             </div>
-            <p className="text-lg font-bold text-slate-800">Vazifa qo&apos;shildi!</p>
+            <p className="text-lg font-bold text-slate-800">
+              {editData?.id ? 'Vazifa yangilandi!' : 'Vazifa qo\'shildi!'}
+            </p>
           </div>
         )}
 
@@ -73,9 +93,11 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-xl">
-                <Plus className="text-white" size={20} />
+                {editData?.id ? <BookOpen className="text-white" size={20} /> : <Plus className="text-white" size={20} />}
               </div>
-              <h2 className="text-white text-lg font-bold">Yangi esse vazifasi</h2>
+              <h2 className="text-white text-lg font-bold">
+                {editData?.id ? 'Vazifani tahrirlash' : 'Yangi esse vazifasi'}
+              </h2>
             </div>
             <button onClick={handleClose}
               className="p-2 rounded-xl bg-white/20 hover:bg-white/30 transition-all text-white cursor-pointer">
@@ -88,7 +110,7 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
         <div className="p-6 space-y-4">
           {/* Sarlavha */}
           <div>
-            <label className="text-sm font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5 block">
+            <label className="text-sm font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5 block focus-within:text-[#8144FE] transition-colors">
               <BookOpen size={15} className="text-[#8144FE]" />
               Esse mavzusi <span className="text-red-400">*</span>
             </label>
@@ -98,14 +120,14 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
               placeholder="Masalan: Ona tilimiz — millat g'ururi"
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl
                 text-sm text-slate-700 placeholder:text-slate-400
-                focus:outline-none focus:ring-2 focus:ring-[#8144FE]/30 focus:border-[#8144FE] transition-all"
+                focus:outline-none focus:ring-4 focus:ring-[#8144FE]/10 focus:border-[#8144FE] transition-all"
               id="add-task-title"
             />
           </div>
 
           {/* Tavsif */}
           <div>
-            <label className="text-sm font-semibold text-slate-600 mb-1.5 block">
+            <label className="text-sm font-semibold text-slate-600 mb-1.5 block focus-within:text-[#8144FE] transition-colors">
               Qo&apos;shimcha ko&apos;rsatma <span className="text-slate-400 font-normal">(ixtiyoriy)</span>
             </label>
             <textarea
@@ -115,7 +137,7 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
               rows={3}
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl
                 text-sm text-slate-700 placeholder:text-slate-400
-                focus:outline-none focus:ring-2 focus:ring-[#8144FE]/30 focus:border-[#8144FE]
+                focus:outline-none focus:ring-4 focus:ring-[#8144FE]/10 focus:border-[#8144FE]
                 transition-all resize-none"
               id="add-task-content"
             />
@@ -157,7 +179,7 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className={`w-full py-3.5 rounded-2xl font-semibold text-white text-sm
+            className={`w-full py-4 rounded-2xl font-bold text-white text-sm
               flex items-center justify-center gap-2.5 transition-all duration-300 shadow-lg cursor-pointer
               ${loading
                 ? 'bg-[#8144FE]/60 cursor-wait'
@@ -165,7 +187,11 @@ const AddTaskModal = ({ isOpen, onClose, onAdded }) => {
               }`}
             id="add-task-submit"
           >
-            {loading ? <><Loader2 className="animate-spin" size={18} /> Saqlanmoqda...</> : <><Plus size={18} /> Vazifa qo'shish</>}
+            {loading ? (
+              <><Loader2 className="animate-spin" size={18} /> Saqlanmoqda...</>
+            ) : (
+              <>{editData?.id ? <BookOpen size={18} /> : <Plus size={18} />} {editData?.id ? 'O\'zgarishlarni saqlash' : 'Vazifa qo\'shish'}</>
+            )}
           </button>
         </div>
       </div>

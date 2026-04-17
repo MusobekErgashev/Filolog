@@ -45,7 +45,7 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
           .select('diamonds')
           .eq('id', submission.user_id)
           .single()
-          
+
         if (profile) {
           await supabase
             .from('profiles')
@@ -69,13 +69,13 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
 
   const scoreColor =
     score >= 20 ? 'text-green-600' :
-    score >= 12 ? 'text-amber-600' :
-    'text-red-500'
+      score >= 12 ? 'text-amber-600' :
+        'text-red-500'
 
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        <div className="absolute h-screen inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
         <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
           style={{ animation: 'slideUp 0.35s ease-out' }}>
@@ -97,10 +97,10 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
               <div>
                 <h2 className="text-white text-lg font-bold">Esseni baholash</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <User size={13} className="text-white/70" />
-                  <p className="text-white/80 text-sm font-medium">
-                    {submission.profiles?.first_name} {submission.profiles?.last_name}
-                    <span className="text-white/50 ml-1 text-xs">({submission.user_email})</span>
+                  <User size={18} className="text-white/70" />
+                  <p className="text-white/80 flex flex-col text-sm font-medium">
+                    <span className='text-[14px] font-semibold'>{submission.profiles?.first_name} {submission.profiles?.last_name}</span>
+                    <span className="text-white/50 text-xs">({submission.user_email})</span>
                   </p>
                 </div>
               </div>
@@ -116,14 +116,14 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
             {submission.answer_image && (
               <div>
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Yuklangan esse</p>
-                <div 
+                <div
                   onClick={() => setShowLightbox(true)}
                   className="relative group cursor-zoom-in"
                 >
                   <img
                     src={submission.answer_image}
                     alt="Esse rasmi"
-                    className="w-full max-h-56 object-contain rounded-2xl border border-slate-100 bg-slate-50 group-hover:opacity-90 transition-opacity"
+                    className="w-full max-h-40 object-contain rounded-2xl border border-slate-100 bg-slate-50 group-hover:opacity-90 transition-opacity"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
                     <span className="bg-white/90 px-3 py-1.5 rounded-full text-xs font-bold text-[#8144FE] flex items-center gap-1.5 shadow-sm">
@@ -250,7 +250,7 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
                 <RotateCw size={20} />
               </button>
             </div>
-            <button 
+            <button
               onClick={() => { setShowLightbox(false); setZoom(1); setRotation(0); }}
               className="p-3 bg-white text-black rounded-full hover:bg-white/90 hover:scale-110 active:scale-90 transition-all cursor-pointer"
             >
@@ -263,7 +263,7 @@ const AdminReviewModal = ({ isOpen, onClose, submission, task, onReviewed }) => 
             <img
               src={submission.answer_image}
               alt="Zoomed Review"
-              style={{ 
+              style={{
                 transform: `scale(${zoom}) rotate(${rotation}deg)`,
                 transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 maxHeight: '90vh',

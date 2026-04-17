@@ -26,7 +26,7 @@ const ConfirmModal = ({
     const isDanger = variant === "danger"
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="fixed h-screen inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-7 flex flex-col gap-5 animate-in zoom-in duration-200">
                 <div className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center ${isDanger ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
                     <AlertTriangle size={28} />

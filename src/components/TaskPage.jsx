@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import {
   CheckCheck, List, Clock, Send, Loader2, FileText,
-  Plus, Eye, Star, MessageSquare, User, ImageOff, X,
+  Plus, Eye, Star, MessageSquare, User, ImageOff, X, Edit2, Trash2
 } from 'lucide-react'
 import SubmitEssayModal from './SubmitEssayModal'
 import AddTaskModal from './AddTaskModal'
 import AdminReviewModal from './AdminReviewModal'
+import ConfirmModal from './ConfirmModal'
 
 const TaskPage = () => {
   const [activeTab, setActiveTab] = useState('all')
@@ -27,6 +28,9 @@ const TaskPage = () => {
   const [selectedSubmission, setSelectedSubmission] = useState(null)
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [viewData, setViewData] = useState(null)
+  const [editingTask, setEditingTask] = useState(null) // tahrirlash uchun
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [taskToDelete, setTaskToDelete] = useState(null)
 
   // ── Ma'lumotlarni yuklash ─────────────────────────────────────
   const fetchData = async () => {
@@ -139,6 +143,30 @@ const TaskPage = () => {
   }
   const handleOpenView = (task, submission) => { setViewData({ task, submission }); setViewModalOpen(true) }
 
+  // Admin amallari
+  const handleEditTask = (task) => {
+    setEditingTask(task)
+    setAddTaskModalOpen(true)
+  }
+
+  const handleDeleteTask = (taskId) => {
+    setTaskToDelete(taskId)
+    setDeleteModalOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!taskToDelete) return
+    try {
+      const { error } = await supabase.from('tasks').delete().eq('id', taskToDelete)
+      if (error) throw error
+      fetchData()
+      setDeleteModalOpen(false)
+      setTaskToDelete(null)
+    } catch (err) {
+      alert(`❌ O'chirishda xatolik: ${err.message}`)
+    }
+  }
+
   return (
     <>
       <div className="space-y-6">
@@ -151,7 +179,7 @@ const TaskPage = () => {
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold
                 transition-all duration-300 cursor-pointer
                 ${activeTab === 'all'
-                  ? 'bg-gradient-to-r from-[#8144FE] to-[#9B6AFF] text-white shadow-lg shadow-[#8144FE]/25'
+                  ? 'bg-linear-to-r from-[#8144FE] to-[#9B6AFF] text-white shadow-lg shadow-[#8144FE]/25'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
             >
               <List size={18} /><span>Barchasi</span>
@@ -161,7 +189,7 @@ const TaskPage = () => {
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold
                 transition-all duration-300 cursor-pointer
                 ${activeTab === 'checked'
-                  ? 'bg-gradient-to-r from-[#8144FE] to-[#9B6AFF] text-white shadow-lg shadow-[#8144FE]/25'
+                  ? 'bg-linear-to-r from-[#8144FE] to-[#9B6AFF] text-white shadow-lg shadow-[#8144FE]/25'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'}`}
             >
               <CheckCheck size={18} /><span>Tekshirilgan</span>
@@ -173,14 +201,14 @@ const TaskPage = () => {
             <button
               onClick={() => setAddTaskModalOpen(true)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl
-                bg-gradient-to-r from-[#8144FE] to-[#9B6AFF]
+                bg-linear-to-r from-[#8144FE] to-[#9B6AFF]
                 text-white text-sm font-semibold shadow-lg shadow-[#8144FE]/20
                 hover:shadow-xl hover:shadow-[#8144FE]/30 hover:scale-105
                 active:scale-95 transition-all duration-300 cursor-pointer"
               id="admin-add-task-btn"
             >
               <Plus size={18} />
-              <span>Esse qo'shish</span>
+              <span>Esse qo&apos;shish</span>
             </button>
           )}
         </div>
@@ -215,23 +243,44 @@ const TaskPage = () => {
                       style={{ animation: `taskFadeIn 0.4s ease-out ${ti * 0.07}s both` }}
                     >
                       {/* Task header */}
-                      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8144FE]/10 to-[#B794FF]/10
-                            flex items-center justify-center border border-[#8144FE]/10">
-                            <FileText className="text-[#8144FE]" size={18} />
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:px-6 sm:py-5 border-b border-slate-50 gap-4">
+                        <div className="flex items-start gap-4 flex-1 min-w-0">
+                          <div className="w-11 h-11 rounded-2xl bg-linear-to-br from-[#8144FE]/10 to-[#B794FF]/10
+                            flex items-center justify-center border border-[#8144FE]/10 shrink-0">
+                            <FileText className="text-[#8144FE]" size={22} />
                           </div>
-                          <div>
-                            <h3 className="font-bold text-slate-800 text-base">{task.title}</h3>
-                            {task.content && <p className="text-slate-400 text-xs mt-0.5 line-clamp-1">{task.content}</p>}
+                          <div className="min-w-0">
+                            <h3 className="font-black text-slate-800 text-[15px] sm:text-lg leading-tight mb-1">{task.title}</h3>
+                            {task.content && <p className="text-slate-400 text-xs line-clamp-1 italic">{task.content}</p>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="px-2.5 py-1 bg-amber-50 border border-amber-100 rounded-xl text-amber-600 text-xs font-bold flex items-center gap-1">
-                            💎 {task.diamonds}
+
+                        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-3 sm:pt-0 border-t sm:border-0 border-slate-50">
+                          {/* Admin Edit/Delete */}
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleEditTask(task); }}
+                              className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 hover:text-[#8144FE] hover:bg-[#8144FE]/10 rounded-xl transition-all cursor-pointer border border-slate-200/50"
+                              title="Tahrirlash"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}
+                              className="w-10 h-10 flex items-center justify-center bg-slate-50 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all cursor-pointer border border-slate-200/50"
+                              title="O&apos;chirish"
+                            >
+                              <Trash2 size={18} />
+                            </button>
                           </div>
-                          <div className="px-2.5 py-1 bg-slate-100 rounded-xl text-slate-500 text-xs font-semibold">
-                            {subs.length} ta javob
+
+                          <div className="flex items-center gap-2">
+                            <div className="px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-xl text-amber-600 text-xs font-black flex items-center gap-1.5 shadow-sm shadow-amber-200/20">
+                              💎 {task.diamonds}
+                            </div>
+                            <div className="px-3 py-1.5 bg-slate-100 rounded-xl text-slate-500 text-xs font-bold border border-slate-200/50">
+                              {subs.length} javob
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -249,55 +298,68 @@ const TaskPage = () => {
                             const fullName = [sub.profiles?.first_name, sub.profiles?.last_name].filter(Boolean).join(' ')
                             return (
                               <div key={sub.id}
-                                className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/80 transition-colors">
-                                {/* Avatar */}
-                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#8144FE]/20 to-[#B794FF]/20
-                                  flex items-center justify-center shrink-0">
-                                  <User size={16} className="text-[#8144FE]" />
-                                </div>
+                                className="flex flex-col sm:flex-row sm:items-center gap-4 px-4 py-4 sm:px-6 sm:py-4 hover:bg-slate-50/50 transition-colors">
 
-                                {/* Ism va email */}
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-semibold text-slate-800 truncate">
-                                    {fullName || sub.user_email}
-                                  </p>
-                                  {fullName && (
-                                    <p className="text-xs text-slate-400 truncate">{sub.user_email}</p>
-                                  )}
-                                  {sub.user_description && (
-                                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1 italic">
-                                      {sub.user_description}
-                                    </p>
-                                  )}
-                                </div>
-
-                                {/* Ball (agar baholangan bo'lsa) */}
-                                {sub.status === 'approved' && sub.score !== null && (
-                                  <div className="flex items-center gap-1 px-2.5 py-1 bg-green-50 border border-green-100 rounded-xl text-green-600 text-xs font-bold shrink-0">
-                                    <Star size={12} />
-                                    {sub.score}/24
+                                <div className="flex items-center gap-4 flex-1 min-w-0">
+                                  {/* Avatar */}
+                                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#8144FE]/20 to-[#B794FF]/20
+                                    flex items-center justify-center shrink-0 border border-[#8144FE]/10 shadow-sm">
+                                    <User size={18} className="text-[#8144FE]" />
                                   </div>
-                                )}
 
-                                {/* Status */}
-                                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-xl border text-xs font-semibold shrink-0
-                                  ${sc.bg} ${sc.text} ${sc.border}`}>
-                                  {sc.icon}
-                                  <span className="hidden sm:inline">{sc.label}</span>
+                                  {/* Ism va email */}
+                                  <div className="min-w-0">
+                                    <p className="text-[14px] font-black text-slate-800 truncate leading-none mb-1">
+                                      {fullName || sub.user_email}
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                      {fullName && (
+                                        <p className="text-[11px] text-slate-400 truncate max-w-[120px] sm:max-w-none">{sub.user_email}</p>
+                                      )}
+                                      {sub.user_description && (
+                                        <>
+                                          <div className="w-1 h-1 rounded-full bg-slate-200 hidden sm:block" />
+                                          <p className="text-[11px] text-slate-500 italic truncate hidden sm:block">
+                                            &quot;{sub.user_description}&quot;
+                                          </p>
+                                        </>
+                                      )}
+                                    </div>
+                                    {sub.user_description && (
+                                      <p className="text-[11px] text-slate-500 italic mt-1 line-clamp-1 sm:hidden">
+                                        &quot;{sub.user_description}&quot;
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
 
-                                {/* Baholash tugmasi */}
-                                <button
-                                  onClick={() => handleOpenReview(sub, task)}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl
-                                    bg-gradient-to-r from-[#8144FE] to-[#9B6AFF]
-                                    text-white text-xs font-semibold shadow-sm
-                                    hover:shadow-md hover:scale-105 active:scale-95
-                                    transition-all duration-200 cursor-pointer shrink-0"
-                                >
-                                  <Eye size={13} />
-                                  <span>Ko'rish</span>
-                                </button>
+                                <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                                  {/* Ball (agar baholangan bo'lsa) */}
+                                  {sub.status === 'approved' && sub.score !== null && (
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-100 rounded-xl text-green-600 text-[11px] font-black shadow-sm shadow-green-200/20">
+                                      <Star size={13} strokeWidth={3} />
+                                      {sub.score}/24
+                                    </div>
+                                  )}
+
+                                  {/* Status Icon */}
+                                  <div className={`p-2 rounded-xl border flex items-center justify-center shadow-sm ${sc.bg} ${sc.text} ${sc.border}`}>
+                                    {sc.icon}
+                                  </div>
+
+                                  {/* Baholash tugmasi */}
+                                  <button
+                                    onClick={() => handleOpenReview(sub, task)}
+                                    className="flex items-center justify-center gap-2 px-6 py-2.5 sm:px-4 sm:py-2 rounded-xl
+                                      bg-linear-to-r from-[#8144FE] to-[#9B6AFF]
+                                      text-white text-xs font-black shadow-md shadow-[#8144FE]/20
+                                      hover:shadow-lg hover:translate-y-[-1px] active:translate-y-[1px]
+                                      transition-all duration-200 cursor-pointer flex-1 sm:flex-none"
+                                  >
+                                    <Eye size={14} />
+                                    <span>Ko&apos;rish</span>
+                                  </button>
+                                </div>
                               </div>
                             )
                           })}
@@ -415,12 +477,12 @@ const TaskPage = () => {
 
                         {/* Pastki gradient chiziq */}
                         <div className={`h-1 w-full transition-all duration-500 ${submission?.status === 'approved'
-                          ? 'bg-gradient-to-r from-green-400 to-emerald-500'
+                          ? 'bg-linear-to-r from-green-400 to-emerald-500'
                           : submission?.status === 'rejected'
-                            ? 'bg-gradient-to-r from-red-400 to-rose-500'
+                            ? 'bg-linear-to-r from-red-400 to-rose-500'
                             : submission
-                              ? 'bg-gradient-to-r from-amber-400 to-yellow-500'
-                              : 'bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-[#8144FE]/30 group-hover:to-[#9B6AFF]/30'
+                              ? 'bg-linear-to-r from-amber-400 to-yellow-500'
+                              : 'bg-linear-to-r from-slate-100 to-slate-200 group-hover:from-[#8144FE]/30 group-hover:to-[#9B6AFF]/30'
                           }`} />
                       </div>
                     )
@@ -434,9 +496,32 @@ const TaskPage = () => {
 
       {/* ── Modallar ─────────────────────────────── */}
       <SubmitEssayModal isOpen={submitModalOpen} onClose={handleCloseSubmit} task={selectedTask} />
-      <AddTaskModal isOpen={addTaskModalOpen} onClose={() => setAddTaskModalOpen(false)} onAdded={fetchData} />
+      <AddTaskModal
+        isOpen={addTaskModalOpen}
+        onClose={() => {
+          setAddTaskModalOpen(false)
+          setEditingTask(null)
+        }}
+        onAdded={fetchData}
+        editData={editingTask}
+      />
       <AdminReviewModal isOpen={reviewModalOpen} onClose={handleCloseReview} submission={selectedSubmission} task={selectedTask} onReviewed={fetchData} />
       <ViewTaskModal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} data={viewData} />
+
+      {deleteModalOpen && (
+        <ConfirmModal
+          title="Vazifani o'chirish"
+          message="Haqiqatan ham ushbu vazifani o'chirib tashlamoqchimisiz? Buning natijasida barcha topshirilgan javoblar ham o'chib ketadi!"
+          confirmText="O'chirish"
+          cancelText="Bekor qilish"
+          onConfirm={confirmDelete}
+          onCancel={() => {
+            setDeleteModalOpen(false)
+            setTaskToDelete(null)
+          }}
+          variant="danger"
+        />
+      )}
 
       <style>{`
         @keyframes taskFadeIn {
@@ -488,7 +573,7 @@ const ViewTaskModal = ({ isOpen, onClose, data }) => {
               <img src={submission.answer_image} alt="Sizning rasm" className="h-30 rounded-lg border border-slate-200 hover:opacity-80 transition-opacity" />
             </a>
             {submission.status === 'approved' && submission.score !== null && (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
+              <div className="bg-linear-to-r from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
                 <div className="flex items-center gap-2 mb-2">
                   <Star size={16} className="text-green-600" />
                   <p className="font-bold text-green-700">Baholandi: {submission.score}/24 ball</p>
@@ -503,7 +588,7 @@ const ViewTaskModal = ({ isOpen, onClose, data }) => {
             )}
           </div>
         )}
-        <button onClick={onClose} className="w-full py-3.5 bg-gradient-to-r from-[#8144FE] to-[#9B6AFF] hover:shadow-lg hover:shadow-[#8144FE]/25 hover:scale-[1.02] active:scale-95 text-white rounded-2xl font-semibold transition-all cursor-pointer">
+        <button onClick={onClose} className="w-full py-3.5 bg-linear-to-r from-[#8144FE] to-[#9B6AFF] hover:shadow-lg hover:shadow-[#8144FE]/25 hover:scale-[1.02] active:scale-95 text-white rounded-2xl font-semibold transition-all cursor-pointer">
           Yopish
         </button>
       </div>
